@@ -1,0 +1,16 @@
+# coding: utf-8
+from pathlib import Path
+import shutil, subprocess, tempfile
+source=(Path(__file__).resolve().parents[1]/'index.html').read_text().split('<script>')[1].split('</script>')[0]
+prefix='var navigator={language:"zh"};var document={documentElement:{},getElementById:function(){return {}}};var localStorage={getItem:function(){return null},setItem:function(){}};var performance={now:function(){return 0}};\n'
+test='''render=()=>{};toast=()=>{};save=()=>{};function check(v,m){if(!v)throw Error(m)}
+s=fresh();s.mode='growth';check(thoughtCapacity()===1000,'initial cap');s.thoughts=999;check(addThought(5)===1&&s.thoughts===1000&&s.runThoughts===1,'thought cap');s.disturbances=200;check(convertDisturbances()===0&&s.disturbances===200,'full output retains inputs');s.thoughts=998;check(convertDisturbances()===2&&s.disturbances===0&&s.thoughts===1000,'disturbance consumed');
+s.mind=6;updateMindChain();check(s.networkLinks===0&&s.networkCount===0,'nodes do not create free links');s.mindEvolutions.knowledge=true;convertMind('link');check(s.mind===3&&s.networkLinks===1,'link consumes nodes');s.mind=6;convertMind('link');convertMind('link');check(s.mind===0&&s.networkLinks===3,'links');convertMind('network');check(s.networkLinks===0&&s.networkCount===1,'network consumes links');s.stageUnlocks.ideology=true;convertMind('ideology');check(s.networkCount===0&&s.ideology===1,'ideology consumes network');
+s=fresh();s.mode='growth';s.runThoughts=300;s.thoughts=300;buyStorage('mind');check(s.thoughts===300,'storage requires progression');s.mindEvolutions.sprout=true;buyStorage('mind');check(thoughtCapacity()===1500&&s.thoughts===100,'storage purchase');s.mode='summary';s.echo=10;buyStageChoice('mindStorage');check(s.legacyStorage.mind===1&&s.echo===8,'legacy purchase');
+for(const world of ['magic','cultivation','technology']){s=fresh();s.mode='world';s.species='human';s.worldview=world;s.raceResources={[worlds[world].currency]:300};s.raceStage=1;s.stageUnlocks.transcendence=true;s.raceEvolutions[worldEvolutionDefs[world].id]=true;s.raceUpgrades[`race-${world}-human-0`]=4;if(world==='technology')s.worldviewBranch='bio';const recipe=raceRecipes()[0],[from,to,cost]=recipe;convertRaceResource(to);check(s.raceResources[from]===300-cost&&s.raceResources[to]===1,'race conversion '+world);useAdvancedResource(to);check(s.raceResources[to]===0&&s.crisisPrep.includes('study'),'advanced use '+world)}
+s=fresh();s.mode='world';s.species='human';s.worldview='magic';s.raceResources={mana:299,ruleFragments:0};s.savedAt=1000;let r=settleOffline(61000);check(s.raceResources.mana===300&&s.raceResources.ruleFragments===0,'offline cap no free advanced');check(r.resources[0].amount===1,'report accepted resources');check(settleOffline(61000)===null,'no duplicate offline');
+print('storage caps, conversion consumption, unlocks, legacy storage and offline OK');return;\n'''
+source=source.replace("  $('closeOffline').addEventListener('click'",test+"  $('closeOffline').addEventListener('click'",1)
+jsc=shutil.which('jsc') or '/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Helpers/jsc'
+with tempfile.TemporaryDirectory() as folder:
+    script=Path(folder)/'storage.js';script.write_text(prefix+source);subprocess.run([jsc,str(script)],check=True)
