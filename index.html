@@ -68,8 +68,8 @@ button {
 }
 .topline {
   position:absolute;
-  top:24px;
-  left:28px;
+  top:19px;
+  left:16px;
   right:28px;
   display:flex;
   align-items:center;
@@ -319,33 +319,36 @@ button {
   background:#0a1112
 }
 .worldview-data-head {
-  padding:12px 13px 0;
+  padding:9px 10px 0;
   color:#b9d8ce;
-  font-size:10px;
-  letter-spacing:.1em
+  font-size:13px;
+  font-weight:500;
+  letter-spacing:.06em
+}
+.worldview-data-head .worldview-name {
+  font-size:1em;
 }
 .worldview-data-body {
-  padding:9px 13px 14px
-}
-.worldview-data-name {
-  font-size:19px;
-  color:#edf7f2;
-  font-weight:500
+  padding:4px 10px 8px 24px
 }
 .worldview-data-scale {
   font-size:10px;
   color:#9aafa8;
-  margin-top:4px
+  margin-top:2px
 }
 .worldview-data-race {
+  display:flex;
+  flex-wrap:wrap;
+  column-gap:24px;
+  row-gap:4px;
   font-size:10px;
   color:#d1ded8;
-  margin-top:9px
+  margin-top:4px
 }
 .worldview-branches-label {
   font-size:9px;
   color:#72817d;
-  margin:12px 0 6px
+  margin:5px 0 3px
 }
 .worldview-branches {
   display:flex;
@@ -442,10 +445,11 @@ button {
   border-bottom:1px solid var(--line)
 }
 .aside-head strong {
-  font-size:11px;
+  font-size:12px;
   letter-spacing:.16em;
   font-weight:500;
-  color:#9caaa8
+  color:#9caaa8;
+  text-shadow:0 0 8px rgba(168, 217, 207, 0.25)
 }
 .reset {
   border:0;
@@ -531,9 +535,9 @@ button {
   color:#76827e
 }
 .side-note {
-  font-size:9px;
+  font-size:12px;
   line-height:1.6;
-  color:#56615e;
+  color:#b4c8c1;
   margin-top:auto;
   padding:8px 3px
 }
@@ -571,8 +575,8 @@ button {
     border-bottom:1px solid #172022
   }
   .topline {
-    top:14px;
-    left:15px;
+    top:10px;
+    left:10px;
     right:15px
   }
   .world:before {
@@ -737,14 +741,26 @@ button {
   right:18px;
   bottom:16px;
   z-index:4;
-  padding:12px 14px 11px;
-  border:1px solid #243238;
-  border-radius:14px;
-  background:rgba(7,11,14,.96);
-  box-shadow:0 10px 40px #0009;
+  padding:8px 14px 10px;
+  border:1px solid transparent;
+  border-radius:0;
+  background:rgba(7,11,14,.55);
+  box-shadow:none;
   backdrop-filter:blur(10px);
   max-height:190px;
   overflow:auto
+}
+.left-progress {
+  display:contents;
+}
+@media (max-width:1000px) {
+  .left-progress > .worldview-data {
+    position:absolute;
+    z-index:4;
+    top:44px;
+    left:10px;
+    width:min(260px, calc(100% - 20px));
+  }
 }
 .upgrade-panel[hidden] {
   display:none
@@ -753,7 +769,7 @@ button {
   display:flex;
   align-items:center;
   gap:16px;
-  margin-bottom:9px
+  margin-bottom:6px
 }
 .upgrade-head strong {
   font-size:10px;
@@ -791,12 +807,13 @@ button {
 .upgrade-list {
   display:grid;
   grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:7px
+  gap:5px
 }
 .upgrade-panel .upgrade-list {
   grid-template-columns:1fr
 }
 .upgrade-card {
+  position:relative;
   display:grid;
   grid-template-columns:minmax(0,1fr) auto;
   gap:8px;
@@ -816,6 +833,11 @@ button {
   line-height:1.45;
   color:#75847f;
   margin:4px 0 0
+}
+/* 简短描述略小于名称，并保持足够对比度。 */
+.upgrade-card > div > strong + p {
+  font-size:10px;
+  color:#a0b1ab;
 }
 .upgrade-card button,.upgrade-footer button {
   border:1px solid #3b625b;
@@ -890,12 +912,25 @@ button {
   }
 }
 @media(min-width:1001px) {
-  .upgrade-panel {
+  .left-progress {
+    position:absolute;
+    z-index:4;
     left:16px;
-    right:auto;
-    top:66px;
+    top:56px;
     bottom:16px;
     width:300px;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    min-height:0;
+  }
+  .left-progress > .worldview-data { flex:none; }
+  .upgrade-panel {
+    position:relative;
+    inset:auto;
+    width:100%;
+    flex:1;
+    min-height:0;
     max-height:none
   }
   .upgrade-head {
@@ -980,7 +1015,7 @@ button {
   z-index:7
 }
 .completed-title {
-  margin:13px 0 6px;
+  margin:10px 0 5px;
   color:#99aaa5;
   font-size:10px;
   letter-spacing:.08em
@@ -1278,6 +1313,32 @@ button {
 }
 </style>
 <style>
+/* 离线结算使用独立布局，避免影响知识百科。 */
+#offlineReport .encyclopedia-dialog {
+  width:min(520px,100%);
+  height:auto;
+  max-height:calc(100dvh - 20px);
+}
+#offlineReport .encyclopedia-kicker {
+  display:inline-block;
+  font-size:14px;
+  transform:translateY(-3px);
+}
+#offlineReport .encyclopedia-dialog header { align-items:flex-end; gap:12px; flex-wrap:wrap; }
+#offlineTitle { letter-spacing:.04em; }
+#offlineTime { margin:0 0 1px auto; color:#91a69e; font-size:12px; text-align:right; line-height:1.4; }
+#offlineBody {
+  border:0;
+  border-radius:0;
+  background:transparent;
+  padding:8px 0 14px 16px;
+  font-size:15px;
+  line-height:1.35;
+}
+#offlineBody p { margin:1px 0; }
+#offlineBody .offline-gains { margin:0 0 2px -16px; color:#d1e0d9; }
+</style>
+<style>
 #offlineReport {
   z-index:30
 }
@@ -1480,6 +1541,19 @@ button {
 .upgrade-card .encyclopedia-link:hover {
   color:#d8eee5
 }
+.upgrade-card strong .encyclopedia-link {
+  border:0;
+  padding:0;
+  background:none;
+  color:inherit;
+  font:inherit;
+  text-align:left;
+  cursor:pointer;
+}
+.upgrade-card strong .encyclopedia-link:focus-visible {
+  outline:2px solid #a8d9cf;
+  outline-offset:3px;
+}
 @media(max-width:600px) {
   .encyclopedia {
     padding:10px
@@ -1593,31 +1667,37 @@ button {
   flex-shrink:0
 }
 .world-data-panel {
-  overflow:hidden
+  overflow:hidden;
+  border-color:transparent;
+  border-radius:0;
+  background:transparent
 }
 .world-data-header {
   display:flex;
   align-items:center;
-  justify-content:space-between;
+  justify-content:flex-start;
   gap:10px;
-  padding:12px 13px;
+  padding:12px 0;
   border-bottom:1px solid #1c262c;
   color:#acbbb8;
   font-size:11px;
   letter-spacing:.07em
 }
 .world-data-header label {
+  font-size:1.1em;
   white-space:nowrap
 }
 .world-data-header select {
   max-width:70%;
   min-width:0;
-  border:1px solid #304a42;
+  border:1px solid rgba(110, 155, 143, 0.28);
   border-radius:7px;
   padding:7px 9px;
-  background:#101b19;
-  color:#d8e9e2;
+  background:transparent;
+  color:#acbbb8;
   font:inherit;
+  font-size:1.1em;
+  letter-spacing:.07em;
   cursor:pointer
 }
 .world-data-content {
@@ -1651,7 +1731,7 @@ button {
   }
   .world-data-header select {
     min-height:44px;
-    font-size:14px
+    font-size:1.1em
   }
   .world-data-header {
     font-size:13px
@@ -1689,13 +1769,40 @@ button {
   font-variant-numeric:tabular-nums;
   overflow-wrap:anywhere
 }
-.upgrade-level {
+.upgrade-card .upgrade-level {
+  position:absolute;
+  top:8px;
+  right:10px;
+  max-width:45%;
+  margin:0;
+  text-align:right;
   color:#8fa79c!important;
   font-size:10px!important
+}
+.upgrade-card:has(.upgrade-level) > button {
+  margin-top:20px;
 }
 .upgrade-preview {
   font-variant-numeric:tabular-nums
 }
+</style>
+<style>
+/* 放大升级面板文字，并收紧分类标题与卡片的间距。 */
+.upgrade-panel .upgrade-tab { font-size:11px; }
+.upgrade-panel .completed-title { font-size:11px; margin-bottom:1px; }
+.upgrade-panel .upgrade-category { padding-top:6px; margin-top:6px; }
+.upgrade-panel .upgrade-category h3 { font-size:11px; margin-bottom:3px; }
+.upgrade-panel .upgrade-category + .upgrade-list,
+.upgrade-panel .upgrade-category + .upgrade-card { margin-top:-4px; }
+.upgrade-panel .completed-title + .upgrade-card,
+.upgrade-panel .completed-title + .upgrade-list { margin-top:-4px; }
+.upgrade-panel .upgrade-card strong { font-size:12px; }
+.upgrade-panel .upgrade-card p { font-size:10px; }
+.upgrade-panel .upgrade-card > div > strong + p { font-size:11px; }
+.upgrade-panel .upgrade-card .upgrade-level { font-size:11px !important; }
+.upgrade-panel .upgrade-card button { font-size:11px; }
+.upgrade-panel .upgrade-card strong .encyclopedia-link { font:inherit; }
+.upgrade-panel .upgrade-notice { font-size:10px; }
 </style>
 </head>
 <body>
@@ -1708,17 +1815,19 @@ button {
     <div class="scene-stack" id="sceneStack"><div class="scene-copy" id="sceneCopy" hidden><div class="caption" id="caption"></div><div class="story" id="story"></div><div class="hint" id="hint"></div></div>
     <button class="main-action blank" id="mainAction" hidden aria-label="空白符号"></button></div>
     <div class="choices" id="choices" hidden></div>
+    <div class="left-progress">
+      <section class="group worldview-data" id="worldviewData" hidden><div class="worldview-data-head">✦ 本轮世界观：<span class="worldview-name" id="worldviewTitle"></span></div><div class="worldview-data-body" id="worldviewRows"></div></section>
     <section class="upgrade-panel" id="upgradePanel" hidden aria-label="升级界面">
-      <div class="upgrade-head"><strong id="upgradeTitle">成长升级</strong><nav id="upgradeTabs" aria-label="升级分类"></nav></div>
+      <div class="upgrade-head"><strong id="upgradeTitle" hidden>成长升级</strong><nav id="upgradeTabs" aria-label="升级分类"></nav></div>
       <div class="upgrade-list" id="upgradeList"></div>
       <div class="upgrade-footer" id="upgradeFooter"></div>
     </section>
+    </div>
   </main>
   <aside class="aside">
     <div class="aside-head"><strong>世界数据</strong><div class="aside-tools"><button class="encyclopedia-open" id="openEncyclopedia" type="button">知识百科</button><button class="reset" id="reset">重置试玩</button></div></div>
-    <section class="group worldview-data" id="worldviewData" hidden><div class="worldview-data-head">✦ 本轮世界观</div><div class="worldview-data-body" id="worldviewRows"></div></section>
     <section class="group world-data-panel" aria-label="世界数据分类">
-      <div class="world-data-header"><label for="worldDataSelect">世界数据</label><select id="worldDataSelect" aria-label="选择世界数据分类"><option value="resource">资源</option><option value="mind">思维网络</option><option value="story">本轮记忆</option><option value="life">种族与族群</option><option value="civil">文明与异界</option><option value="legacy">轮回遗产</option></select></div>
+      <div class="world-data-header"><select id="worldDataSelect" aria-label="选择世界数据分类"><option value="resource">资源仓库</option><option value="mind">思维网络</option><option value="story">本轮记忆</option><option value="life">载体与族群</option><option value="civil">文明与异界</option><option value="legacy">轮回遗产</option></select></div>
       <div class="world-data-content" id="worldDataContent" tabindex="0" aria-label="当前分类内容，可滚动">
         <div class="group-body" id="resourceRows" data-world-view="resource"></div>
         <div class="group-body" id="mindRows" data-world-view="mind" hidden></div>
@@ -1728,11 +1837,11 @@ button {
         <div class="group-body" id="legacyRows" data-world-view="legacy" hidden></div>
       </div>
     </section>
-    <div class="side-note">点击资源名称查看简述；升级卡片可打开知识百科，阅读完整效果与设定。</div>
+    <div class="side-note">点击名称查看简述；知识百科可以阅读完整效果。</div>
   </aside>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<section class="encyclopedia" id="offlineReport" hidden aria-label="离线成长报告"><div class="encyclopedia-backdrop"></div><div class="encyclopedia-dialog" role="dialog" aria-modal="true" aria-labelledby="offlineTitle"><header><div><span class="encyclopedia-kicker">轮回记录</span><h2 id="offlineTitle">欢迎回来</h2></div><button type="button" class="encyclopedia-close" id="closeOffline" aria-label="关闭报告">×</button></header><article class="encyclopedia-article" id="offlineBody"></article><button type="button" class="tool-btn" id="acceptOffline">继续</button></div></section>
+<section class="encyclopedia" id="offlineReport" hidden aria-label="离线成长报告"><div class="encyclopedia-backdrop"></div><div class="encyclopedia-dialog" role="dialog" aria-modal="true" aria-labelledby="offlineTitle"><header><div><span class="encyclopedia-kicker">轮回记录</span><h2 id="offlineTitle">欢迎回来</h2></div><p id="offlineTime"></p></header><article class="encyclopedia-article" id="offlineBody"></article><button type="button" class="tool-btn" id="acceptOffline">继续</button></div></section>
 <section class="encyclopedia" id="encyclopedia" hidden aria-label="知识百科"><div class="encyclopedia-backdrop" data-close-encyclopedia></div><div class="encyclopedia-dialog" role="dialog" aria-modal="true" aria-labelledby="encyclopediaTitle"><header><div><span class="encyclopedia-kicker">FZZL · 记录与机制</span><h2 id="encyclopediaTitle">知识百科</h2></div><button type="button" class="encyclopedia-close" data-close-encyclopedia aria-label="关闭百科">×</button></header><label class="encyclopedia-search"><span>检索词条</span><input id="encyclopediaSearch" type="search" placeholder="搜索升级、资源或概念"></label><div class="encyclopedia-layout"><nav id="encyclopediaEntries" aria-label="百科词条"></nav><article class="encyclopedia-article" id="encyclopediaArticle" aria-live="polite"><h3>选择一条词条</h3><p>这里会显示升级机制、资源用途与轮回设定的详细说明。</p></article></div></div></section>
 <script>
 
@@ -2161,7 +2270,7 @@ button {
       if (lvl >= 2 && !s.network) return '先构造思维网络'
     } else {
       if (lvl >= 1 && !raceEvolutionUnlocked(raceEvolutionDefs[s.species]?.[0]?.id)) return '先解锁载体进阶';
-      if (lvl >= 2 && s.raceStage < 1) return '先完成种族第一阶段';
+      if (lvl >= 2 && s.raceStage < 1) return '先完成载体第一阶段';
       if (lvl >= 3 && !raceEvolutionUnlocked(worldEvolutionDefs[s.worldview]?.id)) return '先解锁世界观进阶'
     }
     return ''
@@ -2186,7 +2295,7 @@ button {
     if (level >= 5 || s.echo < cost) return;
     s.echo -= cost;
     s.legacyStorage[kind]++;
-    logEvent(`轮回遗产：${kind === 'mind' ? '思维' : '种族'}仓库扩容。`);
+    logEvent(`轮回遗产：${kind === 'mind' ? '思维' : '载体'}仓库扩容。`);
     render();
     save()
   }
@@ -2302,16 +2411,16 @@ button {
     return ({
         prepare: '每累计 10% 数值，考验准备 +1。',
         'prepare-plus': '每累计 10% 数值，考验准备 +2。',
-        resource: '每累计 10% 数值，种族资源产出 +0.1%。',
+        resource: '每累计 10% 数值，载体资源产出 +0.1%。',
         thought: '每累计 20% 数值，每次念头产出 +1。',
-        cost: '每累计 10% 数值，种族升级成本 -1%。',
+        cost: '每累计 10% 数值，载体升级成本 -1%。',
         trial: '每累计 20% 数值，考验难度 -1。'
       })[u.effect];
     return ({
       prepare: `每级考验准备 +1；当前等级 ${level}。`,
-      resource: `每级种族资源产出 +0.1%；当前等级 ${level}。`,
+      resource: `每级载体资源产出 +0.1%；当前等级 ${level}。`,
       thought: `每 10 级念头产出 +1；当前等级 ${level}。`,
-      cost: `每级种族升级成本 -1%；当前等级 ${level}。`,
+      cost: `每级载体升级成本 -1%；当前等级 ${level}。`,
       trial: `每 10 级考验难度 -1；当前等级 ${level}。`
     })[u.effect]
   }
@@ -2343,11 +2452,11 @@ button {
         ]
       },
       'story-event': {
-        name: '种族经历',
+        name: '载体经历',
         category: '生存事件',
         summary: '以载体的具体经历连接升级、选择与考验。',
         details: [
-          '选择生命载体后，可在发展探索栏主动打开两段种族经历。',
+          '选择生命载体后，可在发展探索栏主动打开两段载体经历。',
           '第一段读取相关属性：达到 10 才能获得对应收益；第二段可选择强化考验准备，或保留资源。',
           '知识和延续印记在本轮考验结算时进入跨轮回遗产，不依赖考验是否成功。'
         ]
@@ -2355,16 +2464,16 @@ button {
       'life-sprout': {
         name: '生命的萌芽',
         category: '特殊升级',
-        summary: '让主动点击同时获得思维与种族资源。',
+        summary: '让主动点击同时获得思维与载体资源。',
         details: [
           '选择生命载体后，在发展探索栏免费解锁。',
-          '本轮每次主动点击额外获得 1 个当前世界观的基础种族资源：魔力、灵气或科技点。自动生成不会触发该效果；下一轮需重新解锁。'
+          '本轮每次主动点击额外获得 1 个当前世界观的基础载体资源：魔力、灵气或科技点。自动生成不会触发该效果；下一轮需重新解锁。'
         ]
       },
       'spirit-language': {
         name: '灵与身',
-        category: '思维—种族联动',
-        summary: '把思维成长转化为种族资源产出效率。',
+        category: '思维—载体联动',
+        summary: '把思维成长转化为载体资源产出效率。',
         details: [
           '本轮已产生知识节点且累计念头达到 2000 后，支付 300 念头解锁。',
           '每级使载体基础资源获取效率提高 0.5%，每次获取基础量额外 +5；自动与点击均生效。等级每轮重置，解锁保留。'
@@ -2382,9 +2491,9 @@ button {
       'race-stage-growth': {
         name: '数值深化',
         category: '阶段进阶',
-        summary: '按当前阶段比例强化已形成的种族属性。',
+        summary: '按当前阶段比例强化已形成的载体属性。',
         details: [
-          '每次选择时，将所有已形成的种族数值提高当前阶段 × 3%。',
+          '每次选择时，将所有已形成的载体数值提高当前阶段 × 3%。',
           '此选项扩大已有能力，不会自动增加新属性或改变每级成长效率。'
         ]
       },
@@ -2393,17 +2502,17 @@ button {
         category: '阶段进阶',
         summary: '提高之后每次本体数值升级的幅度。',
         details: [
-          '每次选择使每级种族数值成长幅度增加 0.1%。',
+          '每次选择使每级载体数值成长幅度增加 0.1%。',
           '此效果作用于之后购买的本体数值升级，不直接提高已形成的属性。'
         ]
       },
       'race-stage-expansion': {
         name: '成长分支拓展',
         category: '阶段进阶',
-        summary: '解锁一个新的种族成长维度。',
+        summary: '解锁一个新的载体成长维度。',
         details: [
-          '每次选择增加一个与当前世界观和种族相适配的数值升级选项。',
-          '新维度会进入阶段门槛检查，并按对应种族机制产生附加效果。'
+          '每次选择增加一个与当前世界观和载体相适配的数值升级选项。',
+          '新维度会进入阶段门槛检查，并按对应载体机制产生附加效果。'
         ]
       }
     };
@@ -2420,7 +2529,7 @@ button {
         id, name: `${name} · 升级上限`, category: '升级规则', summary: `扩展「${name}」的可升级等级。`,
             details: [
               `每项常规升级逐档开放 10、50、100、300、600、800、1000 级上限。`,
-              `达到当前上限后，消耗下一档对应资源解锁更多等级；思维升级使用念头，种族升级使用当前世界观资源。`,
+              `达到当前上限后，消耗下一档对应资源解锁更多等级；思维升级使用念头，载体升级使用当前世界观资源。`,
               def ? `当前等级：${upgradeLevel(target)} / ${upgradeCap(target)}；下一档上限为 ${
                         nextUpgradeCap(target)}。` :
                     '已购买的上限扩展会跨轮回保留。'
@@ -2472,7 +2581,7 @@ button {
         category: '世界观专精',
         summary: `沿${branchLabels[id]}方向解释并改造当前世界。`,
         details: [
-          '选择后固定于本轮，改变后续种族升级的名称、专精路线和成长描述。',
+          '选择后固定于本轮，改变后续载体升级的名称、专精路线和成长描述。',
           '专精选择应当成为世界观与载体之间的连接：人类创造方法，动物将能力内化，植物改变自身与环境。'
         ]
       };
@@ -2481,7 +2590,7 @@ button {
     return {
       id, name: '升级上限扩展', category: '升级规则', summary: '为一项常规升级开放更高等级上限。', details: [
         '常规升级逐档开放 10、50、100、300、600、800、1000 级上限。',
-        '达到当前上限后，可消耗下一档对应资源扩展；思维升级使用念头，种族升级使用当前世界观资源。'
+        '达到当前上限后，可消耗下一档对应资源扩展；思维升级使用念头，载体升级使用当前世界观资源。'
       ]
     }
   }
@@ -2540,7 +2649,7 @@ button {
         summary: '世界边界之外传来的信息，需要选择如何处理。',
         details: [
           '一次考察获得 1 条线索，必须先处理才能继续考察。',
-          '保存知识可留下永久记录，并解锁或强化考验中的异界借鉴；转译技术同样保留记录，同时提高本轮种族资源产出。'
+          '保存知识可留下永久记录，并解锁或强化考验中的异界借鉴；转译技术同样保留记录，同时提高本轮载体资源产出。'
         ]
       }
     ]
@@ -2632,7 +2741,7 @@ button {
         summary: '选择载体、经历、专精，并逐步开放族群与文明。',
         details: [
           '人类目标为认知外化：思维、想象、创造与记忆并行发展。动物目标为经验内化：本能谱系与躯体演化双轴。植物目标为生态编织：离散探索后由灵智觉醒收拢路线。',
-          '本次保留现有种族经历、阶段抉择、世界观专精、族群、文明与异界交互；新的轴线、植物觉醒及其锁定判定尚未开放。'
+          '本次保留现有载体经历、阶段抉择、世界观专精、族群、文明与异界交互；新的轴线、植物觉醒及其锁定判定尚未开放。'
         ]
       },
       {
@@ -2703,7 +2812,7 @@ button {
                           .filter(Boolean);
       const action = [...card.querySelectorAll('button')].find(x => !x.dataset.encyclopedia);
       if (action) details.push('当前操作：' + action.textContent.trim());
-      const previous = encyclopediaEntryFor(id);
+      const previous = panelEncyclopedia.get(id) || encyclopediaEntryFor(id);
       const summary = copy ? copy.textContent.split(/[。；]/)[0] + '。' : '查看条件与实际作用。';
       panelEncyclopedia.set(id, {
         id,
@@ -2712,25 +2821,23 @@ button {
         summary,
         details: [...new Set([
           ...details,
-          ...(previous.name === title.textContent && !id.startsWith('race-') ? previous.details || [] : [])
+          ...(previous.name === title.textContent ? previous.details || [] : [])
         ])]
       });
-      if (copy && !copy.textContent.includes('→')) copy.textContent = summary;
-      for (const small of card.querySelectorAll('small'))
-        if (!small.querySelector('[data-encyclopedia]') &&
-            !small.matches('.upgrade-level,.upgrade-preview,.upgrade-cost'))
-          small.hidden = true;
       if (!link) {
         link = document.createElement('button');
         link.type = 'button';
         link.className = 'encyclopedia-link';
         link.dataset.encyclopedia = id;
-        link.textContent = '详细说明';
-        const row = document.createElement('small');
-        row.append(link);
-        (title.parentElement || card).append(row);
-        link.onclick = () => openEncyclopedia(id)
+        link.onclick = () => openEncyclopedia(id);
       }
+      if (!title.contains(link)) {
+        const oldContainer = link.closest('small');
+        link.textContent = title.textContent;
+        title.replaceChildren(link);
+        if (oldContainer) oldContainer.remove();
+      }
+
     }
   }
   function showEncyclopediaArticle(entry) {
@@ -3240,7 +3347,7 @@ button {
     return !!s.raceEvolutions?.[id]
   }
   function raceEvolutionCost(i) {
-    return 20 + i * 10
+    return 50 + 100 * (1 + s.raceStage ** 2)
   }
   function unlockRaceEvolution(id) {
     if (s.mode !== 'world' || !s.species) return;
@@ -3284,7 +3391,7 @@ button {
     const level = (body && mind && (ready || planReady)) ?
         ((guard || planGuard) ? ((study || planStudy) ? 3 : 2) : 1) :
         0;
-    const advice = !body ? `在种族升级中先提升${survivalUpgradeNames[s.species][ids[0]]}或${
+    const advice = !body ? `在载体升级中先提升${survivalUpgradeNames[s.species][ids[0]]}或${
                                survivalUpgradeNames[s.species][ids[1]]}。` :
         !mind                 ? '先继续积累念头，让思维网络形成。' :
         !(ready || planReady) ? '下次危机前落实更多储备或防护方案。' :
@@ -3361,19 +3468,19 @@ button {
     magic: {
       intro: '空气中的魔力沿着不稳定的纹路聚散，接近它可能带来力量，也可能消耗积蓄。',
       name: '稳定魔力共鸣',
-      desc: '消耗 8 魔力，考验准备 +3；需要此前种族选择成功。',
+      desc: '消耗 8 魔力，考验准备 +3；需要此前载体选择成功。',
       cost: 8
     },
     cultivation: {
       intro: '周围的灵气随呼吸与环境流转，一缕灵机也许可以化作能够传递的领悟。',
       name: '凝练灵机',
-      desc: '消耗 6 灵气，考验后留下 1 知识；需要此前种族选择成功。',
+      desc: '消耗 6 灵气，考验后留下 1 知识；需要此前载体选择成功。',
       cost: 6
     },
     technology: {
       intro: '环境中出现可以重复观察的规律。投入现有资源实验，或许能找到更高效的获取方法。',
       name: '验证资源回收',
-      desc: '消耗 5 科技点，成功时获得 16 科技点；需要此前种族选择成功。',
+      desc: '消耗 5 科技点，成功时获得 16 科技点；需要此前载体选择成功。',
       cost: 5
     }
   };
@@ -3467,7 +3574,7 @@ button {
           {choice: option.name, success: id !== 'world-event' || !!ev.entries[0]?.success, effect, text});
       ev.stage = 2;
       s.storyDialogOpen = false;
-      markSpecial(`种族经历 · ${storyScenes[s.species].title}`)
+      markSpecial(`载体经历 · ${storyScenes[s.species].title}`)
     }
     logEvent(`${storyScenes[s.species].title}：${text}`);
     render();
@@ -3658,9 +3765,9 @@ button {
       },
       {
         id: 'raceStorage',
-        name: '传承 · 种族仓库',
+        name: '传承 · 载体仓库',
         cost: 2 + (s.legacyStorage.race || 0),
-        desc: `后续每轮每种族资源容量 +100；当前 ${s.legacyStorage.race || 0} / 5。`,
+        desc: `后续每轮每载体资源容量 +100；当前 ${s.legacyStorage.race || 0} / 5。`,
         boost: true,
         level: s.legacyStorage.race || 0,
         max: 5,
@@ -3684,7 +3791,7 @@ button {
         id: 'transcendence',
         name: '进阶 · 超凡适应',
         cost: 2,
-        desc: '后续轮回每两次种族升级即可开放下一阶资源。',
+        desc: '后续轮回每两次载体升级即可开放下一阶资源。',
         owned: s.stageUnlocks.transcendence
       },
       {
@@ -3723,7 +3830,7 @@ button {
         id: 'resourceFlow',
         name: '辅助 · 资源涌流',
         cost: 2,
-        desc: `种族资源每秒额外 +1。当前等级：${s.legacyBoosts.resourceFlow} / 3。`,
+        desc: `载体资源每秒额外 +1。当前等级：${s.legacyBoosts.resourceFlow} / 3。`,
         boost: true,
         level: s.legacyBoosts.resourceFlow,
         max: 3,
@@ -3733,7 +3840,7 @@ button {
         id: 'structure',
         name: '辅助 · 结构稳固',
         cost: 2,
-        desc: `种族升级成本每级降低 10%。当前等级：${s.legacyBoosts.structure} / 5。`,
+        desc: `载体升级成本每级降低 10%。当前等级：${s.legacyBoosts.structure} / 5。`,
         boost: true,
         level: s.legacyBoosts.structure,
         max: 5,
@@ -3743,7 +3850,7 @@ button {
         id: 'dimension',
         name: '拓展 · 成长维度',
         cost: 2 + (s.dimensionUnlocks || 0) * 2,
-        desc: `永久开放一个新的种族数值成长维度。已开放：${
+        desc: `永久开放一个新的载体数值成长维度。已开放：${
             s.dimensionUnlocks || 0}；每轮结算后可用回响继续拓展。`,
         boost: true,
         level: s.dimensionUnlocks || 0,
@@ -3816,7 +3923,7 @@ button {
       }
     }
   }
-  if (s.species && !s.worldview) s.worldview = rollWorldview();
+  if (s.species && !s.worldview) s.worldview = s.stageUnlocks.worldChoice ? selectedWorld : rollWorldview();
   if (!s.raceUpgrades) s.raceUpgrades = s.speciesUpgrades || {};
   delete s.speciesUpgrades;
   if (!s.raceStats) s.raceStats = {};
@@ -4048,7 +4155,7 @@ button {
       card.textContent = `第 ${h.cycle} 轮：选择${h.species}（${h.world}） → 培养${h.focus}至 ${
           raceStatLabel(h.focusValue)} → ${
           h.eventEntries?.length ? h.eventEntries.map(x => x.text).join(' → ') + ' → ' :
-                                   ''}${h.eventBonus ? `种族经历令考验准备 +${h.eventBonus} → ` : ''}${
+                                   ''}${h.eventBonus ? `载体经历令考验准备 +${h.eventBonus} → ` : ''}${
           h.eventKnowledge ? `留下 ${h.eventKnowledge} 知识 → ` :
                              ''}${h.eventMembers ? `留下 ${h.eventMembers} 延续印记 → ` : ''}${
           !h.crisis && h.contributions?.length ?
@@ -4281,9 +4388,9 @@ button {
     const l = upgradeLevel(id);
     return Math.ceil(
         ({
-          frequency: l < 10 ? 100 + 30 * l : (100 + 200 * l) * (1 + l / 100),
-          growth: l < 10 ? 100 + 20 * l : (100 + 100 * l) * (1 + l / 100),
-          network: 500 + 50 * (2 + l),
+          frequency: l < 10 ? 150 + 50 * l : (100 + 200 * l) * (1 + l / 100),
+          growth: l < 10 ? 150 + 20 * l : (100 + 100 * l) * (1 + l / 100),
+          network: 100 + 50 * (2 + l),
           'spirit-language': 500 + 300 * l
         }[id] ??
          Infinity) *
@@ -4389,18 +4496,18 @@ button {
       return;
     s.raceStage++;
     const labels = {growth: '数值深化', efficiency: '成长效率提升', expansion: '成长分支拓展'};
-    markSpecial(`种族阶段 ${stage} · ${labels[choice]}`);
-    logEvent(`种族进入第 ${stage} 阶段，选择${labels[choice]}。`);
+    markSpecial(`载体阶段 ${stage} · ${labels[choice]}`);
+    logEvent(`载体进入第 ${stage} 阶段，选择${labels[choice]}。`);
     render();
     save();
-    toast(`种族进入第 ${stage} 阶段：${labels[choice]}。`)
+    toast(`载体进入第 ${stage} 阶段：${labels[choice]}。`)
   }
   function upgradeCardCopy(id, legacy = '') {
     const basic = {
       frequency: ['提高扰动与念头的生成频率。', '效果：缩短两类自动生成间隔。'],
       growth: ['提高每次扰动与念头的成长量。', '效果：增加每次生成的数量。'],
       network: ['增强主动思考时的念头产出。', '效果：每级让每次点击额外获得 5 念头。'],
-      'spirit-language': ['让思维成长转化为种族资源效率。', '效果：每级载体资源效率 +0.5%，基础获取量 +5。']
+      'spirit-language': ['让思维成长转化为载体资源效率。', '效果：每级载体资源效率 +0.5%，基础获取量 +5。']
     };
     if (basic[id]) return basic[id];
     const def = speciesUpgradeDefs().find(x => x.id === id);
@@ -4408,19 +4515,19 @@ button {
       const short = ({
                       prepare: '提高考验准备。',
                       'prepare-plus': '大幅提高考验准备。',
-                      resource: '增加种族资源产出。',
+                      resource: '增加载体资源产出。',
                       thought: '增加念头产出。',
-                      cost: '降低种族升级成本。',
+                      cost: '降低载体升级成本。',
                       trial: '降低考验难度。'
                     })[def.effect] ||
-          '拓展种族成长能力。';
+          '拓展载体成长能力。';
       return [
         def.kind === 'stat' ? `强化载体的${def.name}能力。` :
                               `发展${worlds[s.worldview].name}世界中的${def.name}方向。`,
         `效果：${short}`
       ]
     }
-    return [legacy.split(/[。；]/)[0] || '拓展思维与种族的成长能力。', '详细机制见知识百科。']
+    return [legacy.split(/[。；]/)[0] || '拓展思维与载体的成长能力。', '详细机制见知识百科。']
   }
   function upgradePreview(id) {
     const def = speciesUpgradeDefs().find(x => x.id === id);
@@ -4441,7 +4548,7 @@ button {
     if (id === 'growth') return `单次成长 ${growthYield()} → ${growthYield() + 1}`;
     if (id === 'network') return `点击念头 ${clickThoughtYield()} → ${clickThoughtYield() + 1} / 次`;
     if (id === 'spirit-language')
-      return `种族资源加成 ${(s.spiritLanguageLv / 10).toFixed(1)}% → ${
+      return `载体资源加成 ${(s.spiritLanguageLv / 10).toFixed(1)}% → ${
           ((s.spiritLanguageLv + 1) / 10).toFixed(1)}%`;
     return ''
   }
@@ -4450,10 +4557,10 @@ button {
     if (!s.species || !s.worldview || s.lifeSprout || s.mode === 'summary') return false;
     s.lifeSprout = true;
     markSpecial('生命的萌芽');
-    logEvent('生命的萌芽开启：主动点击开始产生种族资源。');
+    logEvent('生命的萌芽开启：主动点击开始产生载体资源。');
     render();
     save();
-    toast('生命的萌芽：点击获得种族资源。');
+    toast('生命的萌芽：点击获得载体资源。');
     return true
   }
   function clickThoughtYield() {
@@ -4561,7 +4668,7 @@ button {
             {
               id: 'adapt',
               name: '转译异界技术',
-              desc: '消耗 1 线索，留下永久异界记录；本轮种族资源基础产出 +1 / 秒。',
+              desc: '消耗 1 线索，留下永久异界记录；本轮载体资源基础产出 +1 / 秒。',
               ok: true
             })
       }
@@ -4581,11 +4688,13 @@ button {
       s.inheritedMembers--;
       a.population++;
       s.tribe = a.population;
+      s.tribeDeveloped = true;
       message = '延续印记唤醒了新的族群成员。'
     } else if (id === 'population') {
       s.raceResources[c] -= 15;
       a.population++;
       s.tribe = a.population;
+      s.tribeDeveloped = true;
       message = '新的成员加入了族群。'
     } else if (id === 'knowledge') {
       s.raceResources[c] -= 10;
@@ -4690,7 +4799,7 @@ button {
     intro.className = 'upgrade-notice';
     intro.textContent = s.mode === 'summary' ?
         '回响已结算。完成中的多级升级会留在待完成区，达到上限后才移入已完成。' :
-        '达到条件后出现的种族、分支与阶段升级都集中在这里。';
+        '达到条件后出现的载体、分支与阶段升级都集中在这里。';
     list.append(intro);
     const pending = [];
     if (s.runThoughts >= 1000 && !s.species)
@@ -4705,8 +4814,8 @@ button {
       pending.push({
         type: 'story-event',
         id: 'story-event',
-        name: `种族经历 · ${storyScenes[s.species].title}`,
-        desc: '根据当前种族与成长做出两次选择，留下可追溯的结果。',
+        name: `载体经历 · ${storyScenes[s.species].title}`,
+        desc: '根据当前载体与成长做出两次选择，留下可追溯的结果。',
         button: `经历 ${s.storyEvent.stage + 1} / 2`
       });
     if (s.mode !== 'summary' && s.species && !s.lifeSprout)
@@ -4714,7 +4823,7 @@ button {
         type: 'life-sprout',
         id: 'life-sprout',
         name: '生命的萌芽',
-        desc: '解锁后每次主动点击获得 1 个本世界基础种族资源。',
+        desc: '解锁后每次主动点击获得 1 个本世界基础载体资源。',
         button: '解锁'
       });
     upgradeCapCandidates().forEach(id => {
@@ -4785,7 +4894,7 @@ button {
         type: 'branch',
         id: ids[s.worldview][i],
         name: `世界观专精 · ${label}`,
-        desc: '选择后固定于本轮，并决定种族的后续资源与进化路线。',
+        desc: '选择后固定于本轮，并决定载体的后续资源与进化路线。',
         button: '选择分支'
       }))
     }
@@ -4797,7 +4906,7 @@ button {
         name: x.name,
         desc: x.desc,
         button: x.level !== undefined ?
-            `升级 ${x.level} / ${Number.isFinite(x.max) ? x.max : '持续扩展'} · ${x.cost} 回响` :
+            `升级 · ${x.cost} 回响` :
             `解锁 · ${x.cost} 回响`,
         disabled: s.echo < x.cost
       }));
@@ -4813,7 +4922,7 @@ button {
       empty.className = 'special-empty';
       empty.textContent = s.mode === 'summary' ?
           '当前没有待完成的阶段升级。进入下一轮继续发展。' :
-          '还没有达到新的阶段条件。推进思维与种族成长后，升级会在这里出现。';
+          '还没有达到新的阶段条件。推进思维与载体成长后，升级会在这里出现。';
       list.append(empty)
     }
     pending.forEach(item => {
@@ -4824,20 +4933,19 @@ button {
           item.type === 'unlock-spirit' ? 'spirit-language' :
           item.type === 'cap'           ? `cap-${item.id}` :
                                           item.id;
-      const brief = item.type === 'story-event' ? '进入当前种族的两段经历；效果取决于属性与选择。' :
-          item.type === 'species'               ? '选择一种载体，开启本轮种族与世界观路线。' :
+      const brief = item.type === 'story-event' ? '进入当前载体的两段经历；效果取决于属性与选择。' :
+          item.type === 'species'               ? '选择一种载体，开启本轮载体与世界观路线。' :
           item.type === 'race-stage'            ? '选择一种阶段进阶方向，改变后续成长方式。' :
           item.type === 'branch'                ? '确定本轮的世界观专精方向。' :
           item.type === 'cap'                   ? '扩展这项升级的等级上限。' :
-          item.type === 'unlock-spirit'         ? '解锁思维与种族资源之间的联动。' :
-          item.type === 'life-sprout'           ? '让主动点击同时产生念头与基础种族资源。' :
+          item.type === 'unlock-spirit'         ? '解锁思维与载体资源之间的联动。' :
+          item.type === 'life-sprout'           ? '让主动点击同时产生念头与基础载体资源。' :
           item.type === 'stage'                 ? item.desc.split(/[。；]/)[0] + '。' :
                                                   '推进当前阶段的特殊成长。';
       const metadata = specialUpgradeMeta(item);
       card.innerHTML = `<div><strong>${item.name}</strong><p>${brief}</p><p class="upgrade-level">${
           metadata.level}</p><p class="upgrade-preview">${
-          metadata.preview}</p><p class="upgrade-cost">需要：${
-          metadata.cost}</p><small><button type="button" class="encyclopedia-link" data-encyclopedia="${
+          metadata.preview}</p>${item.button.includes(metadata.cost) ? '' : `<p class="upgrade-cost">需要：${metadata.cost}</p>`}<small><button type="button" class="encyclopedia-link" data-encyclopedia="${
           encyclopediaId}">详细说明</button></small></div><button type="button" data-special-action ${
           item.disabled ? 'disabled' : ''}>${item.button}</button>`;
       card.querySelector('[data-encyclopedia]').onclick = () => openEncyclopedia(encyclopediaId);
@@ -4943,8 +5051,7 @@ button {
                       [intro, effect] = upgradeCardCopy(id, desc);
                 return `<article class="upgrade-card"><div><strong>${name}</strong><p>${
                     intro}</p><p class="upgrade-level">Lv.${level} / ${cap}</p><p class="upgrade-preview">${
-                    upgradePreview(id)}</p><p class="upgrade-cost">需要：${cost} ${
-                    unit}</p><small><button type="button" class="encyclopedia-link" data-encyclopedia="${
+                    upgradePreview(id)}</p><small><button type="button" class="encyclopedia-link" data-encyclopedia="${
                     id}">详细说明</button></small></div><button type="button" data-up="${id}" ${
                     balance < cost || atCap || (race && pendingTraits().some(p => p.def.id === id)) ?
                         'disabled' :
@@ -4961,6 +5068,8 @@ button {
         'species', 'story-event', 'life-sprout', 'race-stage', 'branch'
       ].includes(item.type));
       if (s.upgradeTab === 'explore' && s.species) {
+        const ability = worldEvolutionDefs[s.worldview];
+        if (ability && raceEvolutionUnlocked(ability.id)) uiCard(list, 'world-ability', ability.name, ability.desc, '已掌握', '已解锁', false, () => {}, ['选择载体后自动解锁。']);
         const directions =
             speciesUpgradeDefs().filter(x => x.kind === 'path' && (s.raceUpgrades[x.id] || 0) > 0);
         if (directions.length) {
@@ -4996,10 +5105,9 @@ button {
       warehouse.className = 'upgrade-card';
       const warehouseCost = storageCost('race'), baseCurrency = worlds[s.worldview].currency;
       warehouse.innerHTML =
-          `<div><strong>种族仓库 · 承载强化</strong><p>扩大载体资源的承载空间。</p><p class="upgrade-level">Lv.${
+          `<div><strong>载体仓库 · 承载强化</strong><p>扩大载体资源的承载空间。</p><p class="upgrade-level">Lv.${
               s.storage.race || 0}</p><p class="upgrade-preview">基础容量 ${raceCapacity(baseCurrency)} → ${
-              raceCapacity(baseCurrency) + 2000}</p><p class="upgrade-cost">需要：${warehouseCost} ${
-              raceResourceName(baseCurrency)}</p></div><button type="button" ${
+              raceCapacity(baseCurrency) + 2000}</p></div><button type="button" ${
               (s.raceResources[baseCurrency] || 0) < warehouseCost || storageRequirement('race') ?
                   'disabled' :
                   ''}>扩容 · ${warehouseCost} ${raceResourceName(baseCurrency)}</button>`;
@@ -5044,42 +5152,23 @@ button {
         card.innerHTML =
             `<div><strong>${v.name}</strong><p>${v.desc}</p><p class="upgrade-level">能力解锁 · ${
                 done ? 1 : 0} / 1</p><p class="upgrade-preview">${
-                done ? '已掌握' : `未掌握 → 获得${v.name}`}</p><p class="upgrade-cost">需要：${
-                raceEvolutionCost(i)} ${raceResourceName(currency)}</p></div><button type="button" ${
+                done ? '已掌握' : `未掌握 → 获得${v.name}`}</p></div><button type="button" ${
                 done || !prereq || (s.raceResources[currency] || 0) < raceEvolutionCost(i) ? 'disabled' :
                                                                                              ''}>${
                 done ? '已解锁' : `解锁 · ${raceEvolutionCost(i)} ${raceResourceName(currency)}`}</button>`;
         card.querySelector('button').onclick = () => unlockRaceEvolution(v.id);
         list.append(card)
       });
-      const worldAbility = worldEvolutionDefs[s.worldview], worldCard = document.createElement('article');
-      worldCard.className = 'upgrade-card';
-      const worldReady = raceEvolutionUnlocked(evolutionDefs[0].id);
-      worldCard.innerHTML = `<div><strong>${worldAbility.name}</strong><p>${
-          worldAbility.desc}</p><p class="upgrade-level">能力解锁 · ${
-          raceEvolutionUnlocked(worldAbility.id) ? 1 : 0} / 1</p><p class="upgrade-preview">${
-          raceEvolutionUnlocked(worldAbility.id) ?
-              '已掌握' :
-              `未掌握 → 获得${worldAbility.name}`}</p><p class="upgrade-cost">需要：35 ${
-          raceResourceName(currency)}</p></div><button type="button" ${
-          raceEvolutionUnlocked(worldAbility.id) || !worldReady || (s.raceResources[currency] || 0) < 35 ?
-              'disabled' :
-              ''}>${
-          raceEvolutionUnlocked(worldAbility.id) ? '已解锁' :
-                                                   `解锁 · 35 ${raceResourceName(currency)}`}</button>`;
-      worldCard.querySelector('button').onclick = unlockWorldEvolution;
-      if (revealUpgrade('world-ability', worldReady || raceEvolutionUnlocked(worldAbility.id)))
-        list.append(worldCard);
       const route = document.createElement('p');
       route.className = 'upgrade-notice';
-      route.textContent = speciesRouteDescriptions[s.species][s.worldview];
+      route.textContent = s.worldviewBranch ? speciesRouteDescriptions[s.species][s.worldview] : '继续发展载体，探索当前世界观下的通用能力。';
       list.append(route);
       const trait = document.createElement('p');
       trait.className = 'upgrade-notice';
       trait.textContent = ({
-        human: '种族特色：创造实践会强化保存知识的方案。',
-        animal: '种族特色：敏捷反应会降低延续族群的资源消耗。',
-        plant: '种族特色：扎根成长可增加延续印记的数量。'
+        human: '载体特色：创造实践会强化保存知识的方案。',
+        animal: '载体特色：敏捷反应会降低延续族群的资源消耗。',
+        plant: '载体特色：扎根成长可增加延续印记的数量。'
       })[s.species];
       list.append(trait);
       const recipeTitle = document.createElement('h3');
@@ -5100,7 +5189,7 @@ button {
             raceResourceName(from)} → 1 ${raceResourceName(to)}。</p><small>${
             unlocked ?
                 '转换能力已开放' :
-                '需解锁超凡适应、世界观能力，并达到种族第一阶段及对应资源阶位'}</small></div><button type="button" ${
+                '需解锁超凡适应、世界观能力，并达到载体第一阶段及对应资源阶位'}</small></div><button type="button" ${
             !unlocked || (s.raceResources[from] || 0) < cost ||
                     (s.raceResources[to] || 0) >= raceCapacity(to) ?
                 'disabled' :
@@ -5125,8 +5214,8 @@ button {
       renderSpecialSection(
           list, item => item.type === 'cap' && speciesUpgradeDefs().some(x => x.id === item.id));
     }
-    polishUpgradeCards(list);
     if (s.upgradeTab === 'species' && s.mode === 'world') renderPendingTraits(list);
+    polishUpgradeCards(list);
     if (s.mode === 'world' && s.species && s.upgradeTab === 'trial') {
       const collapseBtn = document.createElement('button');
       collapseBtn.textContent = s.crisisResult ? '结束本轮' :
@@ -5275,7 +5364,7 @@ button {
       speciesRows = w.resources.map(
           ([id, name, desc]) =>
               [id, name, s.raceResources[id] || 0,
-               id === w.currency ? `${desc} 自动产出包含灵与身及种族成长加成；点击产出另行计算。` :
+               id === w.currency ? `${desc} 自动产出包含灵与身及载体成长加成；点击产出另行计算。` :
                                    `${desc} 高阶资源须消耗下级资源转化，无法自动产出。`,
                !raceResourceUnlocked(id)])
     }
@@ -5331,7 +5420,7 @@ button {
                           hidden[id] ? '' : 'checked'}> ${name}</label>`)
                   .join('')}</div></div>`;
     if (thoughtRows.length) html += section('思维', thoughtRows);
-    if (speciesRows.length) html += section(`种族 · ${worlds[s.worldview].name}`, speciesRows);
+    if (speciesRows.length) html += section(`载体 · ${worlds[s.worldview].name}`, speciesRows);
 
     $('resourceRows').innerHTML = html;
     $('resourceSettingsToggle').onclick = () => {
@@ -5359,24 +5448,26 @@ button {
       target?.focus({preventScroll: true})
     }
     const worldviewCard = $('worldviewData');
-    worldviewCard.hidden = !(s.species && s.worldview);
-    if (!worldviewCard.hidden) {
+    worldviewCard.hidden = false;
+    if (s.species && s.worldview) {
       const w = worlds[s.worldview], ids = {
         magic: ['chaos', 'arcane'],
         cultivation: ['origin', 'ascension'],
         technology: ['bio', 'mechanical']
       };
       const selected = s.worldviewBranch ? w.branches[ids[s.worldview].indexOf(s.worldviewBranch)] : '';
+      $('worldviewTitle').textContent = w.name;
       $('worldviewRows').innerHTML =
-          `<div class="worldview-data-name">${w.name}</div><div class="worldview-data-scale">${
-              w.scale}</div><div class="worldview-data-race">当前种族：${
-              species[s.species].name}</div><div class="worldview-data-race">种族阶位：${
-              raceStageName()}</div><div class="worldview-branches-label">${
-              selected ? `本轮专精：${selected}` :
-                  s.stageUnlocks.branch ?
-                         '请在左侧选择本轮专精分支' :
-                         '世界观分支将在轮回遗产中开放'}</div><div class="worldview-branches">${
-              w.branches.map(x => `<span>${x}</span>`).join('')}</div>`
+          `<div class="worldview-data-scale">${
+              w.scale}</div><div class="worldview-data-race"><span>当前载体：${
+              species[s.species].name}</span><span>载体阶位：${
+              raceStageName()}</span></div>${
+              s.stageUnlocks.branch || selected ?
+                `<div class="worldview-branches-label">${selected ? `本轮专精：${selected}` : '请在左侧选择本轮专精分支'}</div><div class="worldview-branches">${w.branches.map(x => `<span>${x}</span>`).join('')}</div>` :
+                ''}`
+    } else {
+      $('worldviewTitle').textContent = '？？';
+      $('worldviewRows').innerHTML = '';
     }
     $('mindRows')
         .innerHTML = `<div class="res-row"><span class="res-name">符号回应</span><span class="res-value">${
@@ -5411,7 +5502,7 @@ button {
         '分支待选择';
     const traitNames = {human: '知识与创造', animal: '本能与机动', plant: '根系与储备'};
     $('lifeRows').innerHTML = s.species ?
-        `<div class="res-row"><span class="res-name">当前种族</span><span class="res-value">${
+        `<div class="res-row"><span class="res-name">当前载体</span><span class="res-value">${
             species[s.species].name}</span><span class="res-sub">${species[s.species].desc} · 世界观：${
             worlds[s.worldview].name} · ${
             currentBranch}</span></div><div class="res-row"><span class="res-name">考验专长</span><span class="res-value">${
@@ -5420,11 +5511,11 @@ button {
                 s.trialPlan.started ? '探测已经开始，危机类型尚需判断。' :
                                       '冥冥中有一场考验正在来临。'} 已采取 ${
             s.crisisPrep
-                .length} 项筹备。</span></div><div class="res-row"><span class="res-name">种族成长</span><span class="res-value">阶段 ${
+                .length} 项筹备。</span></div><div class="res-row"><span class="res-name">载体成长</span><span class="res-value">阶段 ${
             s.raceStage}</span><span class="res-sub">各项素质达到 10、30、50、80、100 时可选择对应阶段特性。</span></div><div class="res-row"><span class="res-name">族群</span><span class="res-value">${
             s.stageUnlocks.tribe ? (s.society?.population || 1) :
                                    s.tribe || '尚未形成'}</span><span class="res-sub">${
-            s.stageUnlocks.tribe ? '族群维度已开放，种族成长可向族群扩展。' :
+            s.stageUnlocks.tribe ? '族群维度已开放，载体成长可向族群扩展。' :
                                    '轮回遗产可拓展族群维度。'}</span></div>${
             s.stageUnlocks.tribe ?
                 `<div class="res-row"><span class="res-name">知识</span><span class="res-value">${
@@ -5432,7 +5523,7 @@ button {
                         .knowledge}</span></div><div class="res-row"><span class="res-name">教导者</span><span class="res-value">${
                     s.society.mentors}</span></div>` :
                 ''}` :
-        `<div class="locked"><span class="res-name">种族选择</span><span class="res-value">${
+        `<div class="locked"><span class="res-name">载体选择</span><span class="res-value">${
             s.runThoughts >= 1000 ?
                 '已开放' :
                 `还需 ${
@@ -5535,7 +5626,7 @@ button {
     if (s.cycle === 1)
       return [
         '思维与载体', `身体开始适应${worlds[s.worldview].name}世界。每一次成长，都让意识多留下一点时间。`,
-        '思维网络仍在扩张；种族沿自己的方式改变。'
+        '思维网络仍在扩张；载体沿自己的方式改变。'
       ];
     return [
       '回响与新生',
@@ -5623,7 +5714,7 @@ button {
                 s.crisisResult.advice || '回顾本轮经历。'} 选择：${s.trialResult?.choiceName || ''}；留下 ${
                 s.trialResult?.kept ||
                 0} ${s.trialResult?.keepLabel || ''}；获得 ${s.lastReward || 1} 回响。` :
-            `本轮形成 ${whole(s.runThoughts)} 个念头，种族升级 ${raceUpgradeLevels()} 次；考验${
+            `本轮形成 ${whole(s.runThoughts)} 个念头，载体升级 ${raceUpgradeLevels()} 次；考验${
                 s.trialResult?.cleared ? '保全记忆' : '只留下残片'}；获得 ${s.lastReward || 1} 点回响；${
                 s.trialResult?.choiceName || '本轮'}保留 ${s.trialResult?.kept || 0} ${
                 s.trialResult?.keepLabel || ''}。 评价 ${s.trialResult?.evaluation?.total ?? '—'} / 10：${
@@ -5648,13 +5739,13 @@ button {
       } else if (s.mode === 'species' && !s.species && s.choiceDialogOpen) {
         ch.hidden = false;
         ch.innerHTML =
-            `<div class="choice-backdrop"><section class="choice-dialog" role="dialog" aria-modal="true" aria-labelledby="speciesTitle"><h2 id="speciesTitle">选择种族</h2><p>这个选择在本次轮回中固定，无法重新选择。若想更换，请进入下一轮回。</p><div class="species-grid">${
+            `<div class="choice-backdrop"><section class="choice-dialog" role="dialog" aria-modal="true" aria-labelledby="speciesTitle"><h2 id="speciesTitle">选择载体</h2><p>这个选择在本次轮回中固定，无法重新选择。若想更换，请进入下一轮回。</p>${s.stageUnlocks.worldChoice ? '<label>选择世界观 <select id="worldChoiceSelect"><option value="">请选择</option><option value="magic">魔法</option><option value="cultivation">修仙</option><option value="technology">科技</option></select></label>' : ''}<div class="species-grid">${
                 Object.entries(species)
                     .map(
                         ([id, v]) => `<button class="choice" data-species="${id}"><strong>${
                             v.name}</strong><span>${v.desc}</span></button>`)
                     .join('')}</div></section></div>`;
-        ch.querySelectorAll('[data-species]').forEach(b => b.onclick = () => chooseSpecies(b.dataset.species))
+        ch.querySelectorAll('[data-species]').forEach(b => b.onclick = () => { const world = s.stageUnlocks.worldChoice ? $('worldChoiceSelect').value : undefined; if (s.stageUnlocks.worldChoice && !world) { toast('请先选择世界观。'); return; } chooseSpecies(b.dataset.species, world); })
       } else {
         ch.hidden = true;
         ch.replaceChildren()
@@ -5662,14 +5753,15 @@ button {
     }
     save();
   }
-  function chooseSpecies(id) {
+  function chooseSpecies(id, selectedWorld) {
     if (!species[id] || s.runThoughts < 1000) return;
+    if (s.stageUnlocks.worldChoice && !['magic', 'cultivation', 'technology'].includes(selectedWorld)) return;
     s.species = id;
     s.tribe = 1;
     s.choiceDialogOpen = false;
     s.storyEvent = {stage: 0, entries: [], bonus: 0, pendingKnowledge: 0, pendingMembers: 0};
     s.storyDialogOpen = false;
-    s.worldview = rollWorldview();
+    s.worldview = s.stageUnlocks.worldChoice ? selectedWorld : rollWorldview();
     s.worldviewBranch = null;
     s.raceResources = {};
     s.raceResourceRemainder = {};
@@ -5685,7 +5777,7 @@ button {
       logEvent(`上轮保存的 ${s.inheritedResources} 点资源化为${raceResourceName(currency)}。`);
       s.inheritedResources = 0
     }
-    markSpecial(`选择种族 · ${species[id].name}`);
+    markSpecial(`选择载体 · ${species[id].name}`);
     logEvent(`意识选择了${species[id].name}作为载体；本轮世界观为${worlds[s.worldview].name}。`);
     s.mode = 'world';
     toast(`${species[id].name}成为意识载体；本轮世界观为${worlds[s.worldview].name}。`);
@@ -5994,20 +6086,25 @@ button {
                                         `${Math.floor(sec / 60)} 分 ${sec % 60} 秒`,
           body = $('offlineBody');
     body.replaceChildren();
-    const lines = [
-      `离开时间：${format(report.elapsed)}；本次结算：${format(report.used)}。`,
-      report.paused ? '当前阶段正在等待你的操作，离线期间未自动推进。' :
-                      `获得 ${report.thoughts} 念头与 ${report.disturbances} 扰动。`,
-      ...(report.nodes ? [`合成 ${report.nodes} 知识节点，消耗 ${report.nodeSpent} 念头。`] : []),
-      ...report.resources.map(x => `获得 ${x.amount} ${x.name}。`),
-      ...(report.waiting ? ['生命载体选择已开放，等待选择期间思维资源继续累积。'] : []),
-      ...(report.capped ? ['离线结算上限为 8 小时。'] : [])
-    ];
-    for (const line of lines) {
+    const addLine = (line, className = '') => {
       const p = document.createElement('p');
       p.textContent = line;
+      if (className) p.className = className;
       body.append(p)
+    };
+    $('offlineTime').textContent = (report.elapsed > OFFLINE_LIMIT ? `离开时间：${format(report.elapsed)}；` : '') +
+        `本次结算：${format(report.used)}`;
+    if (report.paused) {
+      addLine('当前阶段正在等待你的操作，离线期间未自动推进。');
+    } else {
+      addLine('获得：', 'offline-gains');
+      addLine(`思维：${report.thoughts} 念头、${report.disturbances} 扰动。`);
+      if (report.nodes) addLine(`思维：合成 ${report.nodes} 知识节点，消耗 ${report.nodeSpent} 念头。`);
+      if (report.resources.length)
+        addLine(`载体：${report.resources.map(x => `${x.amount} ${x.name}`).join('、')}。`);
     }
+    if (report.waiting) addLine('生命载体选择已开放，等待选择期间思维资源继续累积。');
+    if (report.capped) addLine('离线结算上限为 8 小时。');
     $('offlineReport').hidden = false
   }
   function pressMain(e) {
@@ -6056,7 +6153,7 @@ button {
 
 
   const oldUpgradeCap = upgradeCap;
-  upgradeCap = id => Math.max(oldUpgradeCap(id), ({growth: 30, 'spirit-language': 20}[id] || 10));
+  upgradeCap = id => Math.max(oldUpgradeCap(id), ({growth: 30, network: 15, 'spirit-language': 20}[id] || 10));
 
 
 
@@ -6178,8 +6275,8 @@ button {
 
 
   const oldChooseSpecies = chooseSpecies;
-  chooseSpecies = id => {
-    oldChooseSpecies(id);
+  chooseSpecies = (id, selectedWorld) => {
+    oldChooseSpecies(id, selectedWorld);
     if (s.species) {
       s.raceEvolutions[worldEvolutionDefs[s.worldview].id] = true;
       render();
@@ -6340,12 +6437,11 @@ button {
         web: '网络合成：未开放 → 可手动合成'
       }[id]
     }
-    a.innerHTML = `<div><strong>${name}</strong><p>${intro}</p>${
+    a.innerHTML = `<div><strong><button type="button" class="encyclopedia-link" data-encyclopedia="v16-${id}">${name}</button></strong><p>${intro}</p>${
         cardMeta(id) ? `<p class="upgrade-level">${cardMeta(id)}</p>` :
                        ''}<p class="upgrade-preview">${preview}</p>${
-        cost ? `<p class="upgrade-cost">需要：${cost}</p>` :
-               ''}<small><button type="button" class="encyclopedia-link" data-encyclopedia="v16-${
-        id}">详细说明</button></small></div><button type="button" data-action ${enabled ? '' : 'disabled'}>${
+        cost && !button.includes(' · ') ? `<p class="upgrade-cost">需要：${cost}</p>` :
+               ''}</div><button type="button" data-action ${enabled ? '' : 'disabled'}>${
         button}</button>`;
     panelEncyclopedia.set('v16-' + id, {
       id: 'v16-' + id,
@@ -6500,7 +6596,7 @@ button {
   stageChoices = () => {
     const old = previousStages().filter(
         x => x.owned &&
-            !['archive', 'resourceFlow', 'structure', 'mindStorage', 'raceStorage', 'trialTime', 'planSlots']
+            !['archive', 'resourceFlow', 'structure', 'mindStorage', 'raceStorage', 'trialTime', 'planSlots', 'branch', 'worldChoice']
                  .includes(x.id));
     const cleared = s.cycleHistory.filter(x => x.cleared).length;
     const defs = [
@@ -6536,6 +6632,8 @@ button {
     ];
     return [
       ...old,
+      {id:'worldChoice', name:'世界抉择', cost:3, desc:'后续轮回可主动选择世界观。', owned:!!s.stageUnlocks.worldChoice, locked:!(s.tribeDeveloped || (s.society?.population || 0) >= 2 || (s.tribe || 0) >= 2)},
+      {id:'branch', name:'专项抉择', cost:3, desc:'后续轮回开放世界观分支。', owned:!!s.stageUnlocks.branch, locked:!s.stageUnlocks.worldChoice},
       ...defs.map(
           ([id, name, level, max, cost, desc, locked]) =>
               ({id, name, level, max, cost, desc, locked, boost: true, owned: level >= max})),
@@ -6560,7 +6658,7 @@ button {
   const priorRaceCost = raceUpgradeCost;
   raceUpgradeCost = id => {
     const d = speciesUpgradeDefs().find(x => x.id === id), l = upgradeLevel(id);
-    const base = d?.kind === 'stat' ? (500 + 500 * l) * (1 + l / 100) : priorRaceCost(id);
+    const base = d?.kind === 'stat' ? 200 + 100 * l * (1 + s.raceStage) * (1 + l / 100) : priorRaceCost(id);
     return Math.max(1, Math.ceil(base * (1 - .05 * s.legacyBoosts.structure)))
   };
   crisisPrepCost = id => {
@@ -6587,7 +6685,6 @@ button {
     return previousPreview16(id)
   };
   // UI_EVENTS_BEGIN
-  $('closeOffline').addEventListener('click', () => $('offlineReport').hidden = true);
   $('worldDataSelect').addEventListener('change', e => {
     s.worldDataView = e.target.value;
     updateWorldDataView();
@@ -6598,7 +6695,7 @@ button {
   $('emptyPrompt').addEventListener('click', wake);
   action.addEventListener('click', pressMain);
   world.addEventListener('click', e => {
-    if (e.target.closest('#mainAction,#emptyPrompt,#upgradePanel,#choices,.topline,.cycle-notice')) return;
+    if (e.target.closest('#mainAction,#emptyPrompt,#upgradePanel,#worldviewData,#choices,.topline,.cycle-notice')) return;
     if (['empty-button', 'glyph'].includes(s.mode)) {
       disturb(false, e);
       return
