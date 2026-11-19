@@ -23,7 +23,7 @@ s.resourceSettingsOpen=true;check(!resources().includes('data-resource-visible="
 s.runThoughts=100;text=draw('thought');check(text.includes('灵感')&&text.includes('Lv.0 / 10')&&text.includes('点击 1 → 6')&&text.includes('需要：600 念头'),'click upgrade metadata without affordability');check(!text.includes('思绪流动')&&!text.includes('思想萌发'),'later output hidden');
 s.runThoughts=500;s.thoughts=1000;text=draw('thought');check(text.includes('基础提升 · 资源产出')&&text.includes('进阶拓展 · 转化与能力'),'mind categories');check(text.includes('间隔 3000 → 2700 毫秒')&&text.includes('需要：100 念头')&&text.includes('需要：1000 念头、0 节点、0 链接'),'output and evolution costs');check(!text.includes('知识汇聚')&&!text.includes('思念拓展'),'evolution prerequisites respected');
 buyUpgrade('frequency');text=draw('thought');check(text.includes('Lv.1 / 10')&&text.includes('需要：130 念头')&&text.includes('间隔 2700 → 2633 毫秒'),'metadata changes after actual purchase');
-s.thoughts=1000;unlockMindEvolution('sprout');text=draw('thought');check(text.includes('基础提升 · 容量存储')&&text.includes('思念拓展')&&text.includes('1000 → 1500')&&!text.includes('知识汇聚'),'storage revealed by sprout');
+s.thoughts=1000;unlockMindEvolution('sprout');text=draw('thought');check(text.includes('基础提升 · 容量存储')&&text.includes('思念拓展')&&text.includes('10000 → 15000')&&!text.includes('知识汇聚'),'storage revealed by sprout');
 text=resources();check(text.includes('data-res="mind"')&&!text.includes('data-res="networkLinks"'),'node resource appears after sprout');
 s.totalNodes=10;s.mind=10;text=draw('thought');check(text.includes('知识汇聚')&&text.includes('需要：2000 念头、5 节点、0 链接'),'unaffordable evolution stays visible');check(text.includes('思绪凝聚'),'node capacity revealed');s.mind=0;check(draw('thought').includes('思绪凝聚'),'revealed capacity survives spending');
 s.thoughts=2000;s.mind=5;unlockMindEvolution('knowledge');text=resources();check(text.includes('data-res="networkLinks"')&&!text.includes('data-res="networkCount"'),'link unlock distinct from network');
@@ -32,7 +32,7 @@ for(const sp of ['human','animal','plant'])for(const w of ['magic','cultivation'
  text=resources();check(text.includes('data-res="'+worlds[w].currency+'"'),'base carrier currency visible');for(const [id] of worlds[w].resources.slice(1))check(!text.includes('data-res="'+id+'"'),'locked carrier currency hidden: '+id);
  s.raceEvolutions[defs[0].id]=true;check(draw('species').includes(defs[1].name),'next ability revealed');
 }
-s=fresh();s.mode='summary';s.echo=0;text=draw('legacy');check(text.includes('永久念头容量加成 0 → 500')&&text.includes('需要：1 回响')&&text.includes('Lv.0 / 持续扩展'),'legacy metadata');check(!text.includes('<strong>思维迅捷</strong>'),'locked legacy hidden');
+s=fresh();s.mode='summary';s.echo=0;text=draw('legacy');check(text.includes('永久念头容量加成 0 → 5000')&&text.includes('需要：1 回响')&&text.includes('Lv.0 / 持续扩展'),'legacy metadata');check(!text.includes('<strong>思维迅捷</strong>'),'locked legacy hidden');
 print('upgrade costs, levels, comparisons, categories, sequential unlocks, resources and nine carrier combinations OK');return;
 '''
 source = source.replace("  $('closeOffline').addEventListener('click'", test + "  $('closeOffline').addEventListener('click'", 1)
