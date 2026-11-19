@@ -13,6 +13,6 @@ s=fresh();s.mode='world';s.worldview='magic';s.species='human';s.savedAt=1000;s.
 s=fresh();s.mode='growth';s.savedAt=1000;s.runThoughts=500;s.mindEvolutions.sprout=true;s.thoughts=500;const r=settleOffline(31000);check(r.nodes===1&&s.mind===1,'30 second offline synthesis');
 print('v016 output, costs, synthesis, capacity, 9 carriers, traits, plans, legacy and offline OK');return;
 '''
-source=source.replace("  $('closeOffline').addEventListener('click'",test+"  $('closeOffline').addEventListener('click'",1)
+source=source.replace("// UI_EVENTS_BEGIN",test+"// UI_EVENTS_BEGIN",1)
 with tempfile.TemporaryDirectory() as tmp:
  p=Path(tmp)/'v016.js';p.write_text(prefix+source);subprocess.run([shutil.which('jsc') or '/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Helpers/jsc',str(p)],check=True)

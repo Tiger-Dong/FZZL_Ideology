@@ -12,7 +12,7 @@ for(const sp of ['human','animal','plant'])for(const w of ['magic','cultivation'
 s.mode='summary';s.echo=10;const text=draw('legacy');check(text.includes('思维仓库'),'permanent upgrade reachable');check(!text.includes('生命的萌芽')&&!text.includes('解锁 · 200 念头'),'no run upgrades in summary');
 check(redesignEncyclopediaEntries().some(x=>x.id==='plant-awakening'),'planned routes documented');print('five module routing, nine combinations, old tabs and summary filtering OK');return;
 '''
-source=source.replace("  $('closeOffline').addEventListener('click'",test+"  $('closeOffline').addEventListener('click'",1)
+source=source.replace("// UI_EVENTS_BEGIN",test+"// UI_EVENTS_BEGIN",1)
 with tempfile.TemporaryDirectory() as tmp:
  p=Path(tmp)/'modules.js';p.write_text(prefix+source)
  subprocess.run([shutil.which('jsc') or '/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Helpers/jsc',str(p)],check=True)

@@ -35,7 +35,7 @@ for(const sp of ['human','animal','plant'])for(const w of ['magic','cultivation'
 s=fresh();s.mode='summary';s.echo=0;text=draw('legacy');check(text.includes('永久念头容量加成 0 → 5000')&&text.includes('需要：1 回响')&&text.includes('Lv.0 / 持续扩展'),'legacy metadata');check(!text.includes('<strong>思维迅捷</strong>'),'locked legacy hidden');
 print('upgrade costs, levels, comparisons, categories, sequential unlocks, resources and nine carrier combinations OK');return;
 '''
-source = source.replace("  $('closeOffline').addEventListener('click'", test + "  $('closeOffline').addEventListener('click'", 1)
+source = source.replace("// UI_EVENTS_BEGIN", test + "// UI_EVENTS_BEGIN", 1)
 with tempfile.TemporaryDirectory() as tmp:
     path = Path(tmp) / 'upgrade_visibility.js'
     path.write_text(prefix + source)
