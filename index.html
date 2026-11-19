@@ -2080,7 +2080,7 @@ button {
             name = i < 5 ? baseName : `${baseName} · ${Math.floor(i / 5) + 1}`;
       return {
         id: `race-${s.worldview}-${s.species}-${6 + i}`, name,
-            description: `拓展“${name}”数值维度；成长幅度随当前种族成长效率提升。`, kind: 'stat',
+            description: `拓展“${name}”数值维度；每级基础数值 +1。`, kind: 'stat',
             effect: raceStatEffects[s.species][i % 4]
       }
     });
@@ -2298,8 +2298,8 @@ button {
   }
   function raceEffectDescription(u) {
     const level = s.raceUpgrades[u.id] || 0;
-    if (u.kind === 'stat')
-      return ({
+    if (u.kind === 'stat') return '每级基础数值 +1；达到阶段门槛后可选择特性。';
+    return ({
         prepare: '每累计 10% 数值，考验准备 +1。',
         'prepare-plus': '每累计 10% 数值，考验准备 +2。',
         resource: '每累计 10% 数值，种族资源产出 +0.1%。',
@@ -2322,7 +2322,7 @@ button {
         category: '思维升级',
         summary: '加快扰动与念头的生成节奏。',
         details: [
-          '同时缩短扰动和念头的自动生成间隔。首次升级缩短 5%，此后每级再缩短 3%。',
+          '累计 100 念头后开放。首次升级缩短 10% 的生成间隔，此后每级间隔乘以 0.975。',
           '思绪流动改变产出速度，不会直接提高单次产量。'
         ]
       },
@@ -2331,14 +2331,14 @@ button {
         category: '思维升级',
         summary: '让每次扰动与念头增长得更多。',
         details:
-            ['每级使每次扰动和念头生成额外增加 5。', '成长量改变单次产量；与思绪流动的速度提升相互独立。']
+            ['累计 100 念头后开放，每级使每次扰动和念头生成额外增加 5。', '成长量改变单次产量；与思绪流动的速度提升相互独立。']
       },
       network: {
         name: '灵感',
         category: '思维升级',
         summary: '增加每次主动点击获得的念头。',
         details: [
-          '思维网络形成后开放，每级让每次主动点击额外获得 1 个念头。',
+          '累计 50 念头后开放，每级让每次主动点击额外获得 5 个念头。',
           '自动念头产出和知识节点数量不受此升级影响。'
         ]
       },
@@ -2438,8 +2438,7 @@ button {
                             `发展${worlds[s.worldview].name}世界中的${def.name}路线。`,
             details: [
               def.description,
-              stat ? `每次升级使该数值提高 ${(s.raceGrowthRate / 10).toFixed(1)}%；当前为 ${
-                         raceStatLabel(s.raceStats[id] || 0)}。` :
+              stat ? `每次升级使基础数值 +1；当前总值 ${raceStatLabel(s.raceStats[id] || 0)}。` :
                      '方向升级不再通用地提高数值成长幅度，而是产生专属机制效果。',
               `机制效果：${raceEffectDescription(def)}`,
               `当前等级：${current} / ${upgradeCap(id)}。达到当前上限后，可在“发展探索”中购买下一档上限。`
@@ -2546,85 +2545,63 @@ button {
       }
     ]
   }
+  // 百科根据本轮已显现的资源和升级生成，未接触内容以简短方向提示呈现。
   function encyclopediaIndex() {
-    const entries = [
-      {
-        id: 'core-cycle',
-        name: '核心命题：思维与载体',
-        category: '核心概念',
-        summary: '思维借助载体影响世界，也借载体印证、实验并拓展自身。',
-        details: [
-          '载体让思维能够感知、行动并作用于周遭；载体同时受世界限制，也会因世界而改变。',
-          '个体消散后，若思维没有找到新的载体，也会逐渐萎靡直至消散。这段从形成到消散的过程构成一次轮回。',
-          '每轮结束时，系统依据思维发展、种族成长、选择与考验结果给出评价，并凝结为可用于拓展游戏边界的回响。',
-          '终极目标是经过多次轮回与考验，达到载体不再完全依赖思维也能存活、思维不依赖载体也能影响周遭并维持自身的超脱状态。'
-        ]
-      },
-      {
-        id: 'core-thought',
-        name: '思维发展',
-        category: '核心概念',
-        summary: '从扰动、念头和思维网络，逐步发展为思想与意识。',
-        details: [
-          '消耗 100 扰动转化 1 念头；解锁思维萌芽后，每 30 秒尝试消耗至少 500 念头合成 1 节点，上限 10；知识汇聚将上限提升至 20。每个节点使念头自然增长速度提高 0.01%；消耗 3 节点转化 1 链接，消耗 3 链接转化 1 网络。',
-          '种族成长也可以反哺思维产出；思维升级则能通过灵与身提高种族资源效率。',
-          '思维网络之后的思想与意志仍需进一步实现，当前仅提供早期框架。'
-        ]
-      },
-      {
-        id: 'core-species',
-        name: '生命载体与种族',
-        category: '核心概念',
-        summary: '人类、动物和植物以不同方式承载思维、适应世界。',
-        details: [
-          '人类倾向创造知识、技术和可传授的方法；动物倾向改变自身形态、本能与适应能力；植物倾向持续成长并影响周边环境。',
-          '种族升级使用世界观对应资源，与念头等思维资源分开计算。',
-          '世界观为魔法、修仙或科技；达到相应解锁条件后，可选择更深入的专精路线。'
-        ]
-      },
-      {
-        id: 'core-trial',
-        name: '考验与轮回',
-        category: '核心概念',
-        summary: '个体终会消散；考验评估本轮发展，并决定能留下多少回响。',
-        details: [
-          '选择载体后即可看到灾难预兆，角色可主动积累能力、筹备防护与观察，并自行决定何时应对。',
-          '危机结果取决于载体能力、思维、主动筹备和同类危机的已知线索。存活后可继续成长；灾难信息可跨轮回积累。',
-          '远期目标是在多次轮回中扩展能力边界，最终尝试超脱轮回。'
-        ]
+    const entries = [];
+    const addResource = (id, name, summary, details) => {
+      entries.push({id: 'known-resource-' + id, name, category: '已接触的资源', summary, details});
+    };
+    if (s.mode !== 'void' || s.disturbances > 0)
+      addResource('disturbance', '扰动', '意识活动产生的初始资源。', ['每 100 扰动可转化为 1 念头，念头满仓时暂停转化。']);
+    if (['growth', 'species', 'world', 'trial', 'aftermath', 'summary'].includes(s.mode) || s.runThoughts > 0)
+      addResource('thought', '念头', '用于思维升级和发展。', ['念头可自动生成、主动获得，也可由扰动转化。']);
+    if (s.mindEvolutions.sprout || s.totalNodes > 0 || s.mind > 0)
+      addResource('mind', '知识节点', '思维萌芽可自动合成的资源。', ['每 30 秒尝试合成，基础消耗 500 念头，每持有 5 个节点增加 100 念头成本。']);
+    if (s.mindEvolutions.knowledge || s.totalLinks > 0 || s.networkLinks > 0)
+      addResource('networkLinks', '思绪链接', '通过知识节点合成的资源。', ['消耗 3 个节点合成，每持有 3 条链接，额外消耗增加 1000 念头。']);
+    if (s.mindEvolutions.web || s.network || s.networkCount > 0)
+      addResource('networkCount', '思维网络', '通过思绪链接合成的资源。', ['解锁思绪网络后，消耗 3 条链接合成。']);
+    if (s.stageUnlocks.ideology || s.ideology > 0)
+      addResource('ideology', '思想', '由思维网络凝结的高阶资源。', ['每次消耗 100 个思维网络。']);
+    if (s.worldview && s.species) {
+      const w = worlds[s.worldview];
+      for (const [id, name, desc] of w.resources) {
+        if (raceResourceUnlocked(id) || (s.raceResources[id] || 0) > 0 || s.discoveredResources?.[id])
+          addResource(id, name, desc, [id === w.currency ? '当前载体的基础资源，可用于载体成长和灾变筹备。' : '此资源可在满足对应条件后通过资源转化获得。']);
       }
-    ];
-    for (const id
-             of ['frequency', 'growth', 'network', 'spirit-language', 'life-sprout', 'story-event',
-                 'choose-species', 'race-stage-growth', 'race-stage-efficiency', 'race-stage-expansion'])
-      entries.push(encyclopediaEntryFor(id));
-    for (const [key, w] of Object.entries(worlds))
-      for (const [rid, name, desc] of w.resources)
-        entries.push({
-          id: `resource-${key}-${rid}`,
-          name,
-          category: `${w.name} · 种族资源`,
-          summary: desc,
-          details: [
-            `所属世界观：${w.name}。${w.scale}。`, `资源按轮回独立积累，种族成长和灵与身会提高其获取速度。`,
-            `高阶资源会随种族阶位逐步开放。`
-          ]
-        });
-    societyEncyclopediaEntries().forEach(e => entries.push(e));
-    allRaceEncyclopediaEntries().forEach(e => entries.push(e));
-    if (s.species && s.worldview)
-      speciesUpgradeDefs().forEach(def => entries.push(encyclopediaEntryFor(def.id)));
-    for (const [id, name] of Object.entries({
-           chaos: '混沌魔法',
-           arcane: '奥术魔法',
-           origin: '本源修仙',
-           ascension: '晋升修仙',
-           bio: '生物科技',
-           mechanical: '机械科技'
-         }))
-      entries.push(encyclopediaEntryFor(id));
-    stageChoices().forEach(x => entries.push(encyclopediaEntryFor(x.id)));
-    return [...entries, ...redesignEncyclopediaEntries(), ...panelEncyclopedia.values()]
+    }
+    const known = new Set();
+    if (s.species) known.add('choose-species');
+    for (const id of ['frequency', 'growth', 'network', 'spirit-language'])
+      if (outputAvailable(id)) known.add(id);
+    if (s.lifeSprout) known.add('life-sprout');
+    if (s.species && s.storyEvent?.stage > 0) known.add('story-event');
+    for (const id of known) entries.push(encyclopediaEntryFor(id));
+    if (s.species && s.worldview) {
+      for (const def of speciesUpgradeDefs())
+        if (def.kind === 'stat' || (s.raceUpgrades[def.id] || 0) > 0) entries.push(encyclopediaEntryFor(def.id));
+    }
+    if (s.mode === 'summary')
+      for (const choice of stageChoices()) if (!choice.locked) entries.push(encyclopediaEntryFor(choice.id));
+    // 已呈现过的卡片详情可从卡片入口继续查阅。
+    entries.push(...panelEncyclopedia.values());
+    let hint;
+    if (s.mode === 'void' || ['empty-button', 'glyph'].includes(s.mode))
+      hint = '继续回应眼前的变化，尝试积累扰动。';
+    else if (!s.mindEvolutions.sprout)
+      hint = '继续积累念头，在思维栏探索思维萌芽。';
+    else if (!s.mindEvolutions.knowledge)
+      hint = '继续合成知识节点，尝试扩展节点容量并探索知识汇聚。';
+    else if (!s.mindEvolutions.thread)
+      hint = '尝试合成链接、积累节点，并探索节点串联。';
+    else if (!s.mindEvolutions.web)
+      hint = '继续积累链接和节点，尝试扩展容量并探索思绪网络。';
+    else if (!s.species)
+      hint = '继续积累念头，尝试在发展探索中选择生命载体。';
+    else
+      hint = '尝试提升载体素质、探索载体能力与世界观，留意资源转化的新入口。';
+    entries.push({id: 'next-resource-hint', name: '探索提示', category: '下一步', summary: hint, details: []});
+    return entries;
   }
   function redesignEncyclopediaEntries() {
     return [
@@ -2776,7 +2753,6 @@ button {
   }
   function renderEncyclopedia(selected = '') {
     const entries = [...new Map(encyclopediaIndex().map(e => [e.id, e])).values()];
-    if (selected && !entries.some(e => e.id === selected)) entries.unshift(encyclopediaEntryFor(selected));
     const query = $('encyclopediaSearch').value.trim().toLowerCase(),
           filtered = entries.filter(
               e => `${e.name} ${e.category} ${e.summary} ${(e.details || []).join(' ')}`
@@ -3997,56 +3973,49 @@ button {
       return
     }
     if (s.species && s.mode === 'world') {
-      out(s.crisisResult          ? '灾后精进' :
-              s.trialPlan.started ? '灾前准备' :
-                                    '灾难预兆',
-          s.crisisResult          ? '载体仍在成长' :
-              s.trialPlan.started ? `剩余 ${trialClock()}` :
-                                    '未知考验',
-          s.crisisResult          ? '可继续成长。' :
-              s.trialPlan.started ? '在灾变应对栏判断征兆、起草并落实方案；到期自动应对。' :
-                                    '冥冥中有一场考验正在来临。可在灾变应对栏开始探测。',
-          1);
+      if (s.crisisResult) {
+        out('灾后成长', '灾难已应对', '继续成长，或在灾变应对栏结束本轮。', 1);
+      } else if (s.trialPlan.started) {
+        const plans = s.trialPlan.plans;
+        const detail = !s.trialPlan.direction ? '前往灾变应对，选择一项征兆作为方案方向。' :
+          !plans.length ? `前往灾变应对起草方案，需要 ${planCost()} 念头。` :
+          plans.some(p => (p.steps || (p.applied ? [1, 2, 3] : [])).length < 3) ?
+            '在灾变应对栏逐项落实方案，也可继续起草其他方向。' :
+            '方案已落实，可继续准备或立即迎接考验。';
+        out('灾前准备', `剩余 ${trialClock()}`, detail, 1);
+      } else {
+        const pending = pendingTraits()[0];
+        if (pending) {
+          const cost = 100 * pending.threshold;
+          out('完成阶段特性', `${pending.def.name} · ${pending.threshold}`,
+              `在载体栏选择数值提升，需要 ${cost} ${raceResourceName(currentRaceCurrency())}；选择前该项无法继续升级。`, 1);
+        } else {
+          out('发展载体，准备灾变', '考验待探测', '在载体栏升级素质，或前往灾变应对开始信息收集。开始后进入限时筹备。', 1);
+        }
+      }
       return
     }
     if (!s.species && s.runThoughts < 50) {
-      out('让念头成形', `${s.runThoughts} / 50`, '达到 50 个念头后，解锁思绪流动与成长量升级。',
-          s.runThoughts / 50);
+      out('让念头成形', `${s.runThoughts} / 50`, '累计 50 念头后，思维栏开放灵感升级。', s.runThoughts / 50);
+      return
+    }
+    if (!s.species && s.runThoughts < 100) {
+      out('发展思维', `${s.runThoughts} / 100`, '累计 100 念头后，开放思绪流动和思想萌发。', s.runThoughts / 100);
+      return
+    }
+    if (!s.species && s.runThoughts < 500) {
+      out('凝聚思维', `${s.runThoughts} / 500`, '累计 500 念头后，思维栏开放思维萌芽；解锁需要 1000 念头。', s.runThoughts / 500);
       return
     }
     if (!s.species && s.runThoughts < 1000) {
-      out('形成思维网络，寻找载体', `${s.runThoughts} / 1000`,
-          '累计 100 念头后可在思维栏解锁思维萌芽；累计 1000 念头后选择生命载体。', s.runThoughts / 1000);
+      out('积累念头', `${s.runThoughts} / 1000`, '累计 1000 念头可选择生命载体，也可花费 1000 念头解锁思维萌芽。', s.runThoughts / 1000);
       return
     }
     if (!s.species) {
-      out('选择生命载体', '已开放', '在左侧“发展探索”中选择人类、动物或植物。', 1);
+      out('选择生命载体', '已开放', '前往左侧发展探索，选择人类、动物或植物。', 1);
       return
     }
-    if (!s.network) {
-      out('形成思维网络', `${s.networkLinks} 链接 · ${s.mind} 节点`,
-          '解锁知识汇聚后，消耗节点转化链接，再消耗链接构造网络。',
-          Math.min(1, (s.networkLinks * 3 + s.mind) / 9));
-      return
-    }
-    if (raceStageReady()) {
-      out('种族阶段选择', `阶段 ${s.raceStage + 1} 已触及`,
-          '前往左侧“发展探索”，选择数值成长、效率提升或拓展新分支。', 1);
-      return
-    }
-    if (s.runThoughts < 1000) {
-      out('准备第一次考验', `${s.runThoughts} / 1000`,
-          '第一次考验至少需要 1000 个本轮念头、一项阶段特殊强化和种族第一阶段。', s.runThoughts / 1000);
-      return
-    }
-    if (s.raceStage < 1) {
-      const max = Math.max(0, ...Object.values(s.raceStats || {}));
-      out('推进种族至第一阶段', `${Math.min(100, max / 10)} / 100%`,
-          '至少一项种族数值达到 100%，并完成一次阶段选择。', max / 1000);
-      return
-    }
-    out('迎接第一次考验', `准备 ${racePreparation()} / ${trialDifficulty()}`,
-        '已满足念头、种族阶段与特殊强化门槛，可从左侧开启考验。', 1)
+
   }
   function renderStoryLog() {
     const target = $('storyLog');
@@ -4294,9 +4263,10 @@ button {
     if (accepted > 0) s.newCycleWelcome = false;
     updateMindChain();
     if (s.runThoughts >= 50 && previous < 50) {
-      logEvent('思绪流动与成长量升级已开放。');
-      toast('思维基础升级已开放。')
+      logEvent('灵感升级已开放。');
+      toast('灵感升级已开放。')
     }
+    if (s.runThoughts >= 100 && previous < 100) logEvent('思绪流动与思想萌发已开放。');
     if (s.runThoughts >= 1000 && !s.species && previous < 1000) {
       s.mode = 'species';
       logEvent('念头达到 1000；生命载体选择已开放。');
@@ -4398,7 +4368,7 @@ button {
       logEvent(`思维灵感至 Lv.${s.networkLv}。`)
     } else if (kind === 'spirit-language') {
       s.spiritLanguageLv++;
-      logEvent(`灵与身提升至 Lv.${s.spiritLanguageLv}；种族资源获取速度 +0.1%。`)
+      logEvent(`灵与身提升至 Lv.${s.spiritLanguageLv}；每级载体资源效率 +0.5%，基础获取量 +5。`)
     }
     render();
     save()
@@ -4429,8 +4399,8 @@ button {
     const basic = {
       frequency: ['提高扰动与念头的生成频率。', '效果：缩短两类自动生成间隔。'],
       growth: ['提高每次扰动与念头的成长量。', '效果：增加每次生成的数量。'],
-      network: ['增强主动思考时的念头产出。', '效果：每级让每次点击额外获得 1 念头。'],
-      'spirit-language': ['让思维成长转化为种族资源效率。', '效果：种族资源获取速度 +0.1% / 级。']
+      network: ['增强主动思考时的念头产出。', '效果：每级让每次点击额外获得 5 念头。'],
+      'spirit-language': ['让思维成长转化为种族资源效率。', '效果：每级载体资源效率 +0.5%，基础获取量 +5。']
     };
     if (basic[id]) return basic[id];
     const def = speciesUpgradeDefs().find(x => x.id === id);
@@ -4746,16 +4716,6 @@ button {
         name: '生命的萌芽',
         desc: '解锁后每次主动点击获得 1 个本世界基础种族资源。',
         button: '解锁'
-      });
-    if (s.network && s.runThoughts >= 200 && !s.spiritLanguageUnlocked)
-      pending.push({
-        type: 'unlock-spirit',
-        id: 'spirit-language',
-        name: '灵与身',
-        desc:
-            '花费 200 个念头解锁思维—种族联动。之后可在“思维”升级栏继续强化，每级提高种族资源获取速度 0.1%。',
-        button: '解锁 · 200 念头',
-        disabled: s.thoughts < 200
       });
     upgradeCapCandidates().forEach(id => {
       const race = speciesUpgradeDefs().some(x => x.id === id),
@@ -5158,13 +5118,9 @@ button {
         use.querySelector('button').onclick = () => useAdvancedResource(to);
         list.append(use)
       }
-      const effects = raceEffectTotals(), tierNote = document.createElement('p');
+      const tierNote = document.createElement('p');
       tierNote.className = 'upgrade-notice';
-      tierNote.textContent = `当前种族阶位：${raceStageName()} · 阶段 ${s.raceStage}；数值成长效率 ${
-          (s.raceGrowthRate / 10).toFixed(1)}%。阶段门槛：任一数值达到 ${
-          raceStatLabel(raceStageThreshold())}。当前种族效果：资源速度 +${
-          (effects.resource / 10).toFixed(1)}%，升级成本 -${Math.min(70, effects.cost)}%，念头产出 +${
-          effects.thought} / 次，考验准备 +${effects.prepare}，难度 -${effects.difficulty}。`;
+      tierNote.textContent = `当前载体阶段 ${s.raceStage}。各项素质每级 +1，达到 10、30、50、80、100 时分别出现阶段特性。`;
       list.append(tierNote);
       renderSpecialSection(
           list, item => item.type === 'cap' && speciesUpgradeDefs().some(x => x.id === item.id));
@@ -5465,9 +5421,7 @@ button {
                                       '冥冥中有一场考验正在来临。'} 已采取 ${
             s.crisisPrep
                 .length} 项筹备。</span></div><div class="res-row"><span class="res-name">种族成长</span><span class="res-value">阶段 ${
-            s.raceStage} · ${(s.raceGrowthRate / 10).toFixed(1)}%</span><span class="res-sub">任一数值达到 ${
-            raceStatLabel(
-                raceStageThreshold())} 可触发阶段选择。</span></div><div class="res-row"><span class="res-name">族群</span><span class="res-value">${
+            s.raceStage}</span><span class="res-sub">各项素质达到 10、30、50、80、100 时可选择对应阶段特性。</span></div><div class="res-row"><span class="res-name">族群</span><span class="res-value">${
             s.stageUnlocks.tribe ? (s.society?.population || 1) :
                                    s.tribe || '尚未形成'}</span><span class="res-sub">${
             s.stageUnlocks.tribe ? '族群维度已开放，种族成长可向族群扩展。' :
@@ -5968,15 +5922,14 @@ button {
       s.savedAt = now;
       return null
     }
-    const eligible =
-        ['growth', 'world'].includes(s.mode) && !(s.mode === 'growth' && !s.species && s.runThoughts >= 1000);
+    const eligible = ['growth', 'species', 'world'].includes(s.mode);
     if (!eligible) {
       s.savedAt = now;
       return {
         elapsed, used: 0, paused: true, thoughts: 0, disturbances: 0, nodes: 0, resources: []
       }
     }
-    let used = 0, waiting = false, distClock = 0, thoughtClock = 0, gainDist = 0, gainThoughts = 0, nodes = 0;
+    let used = 0, waiting = false, distClock = 0, thoughtClock = 0, gainDist = 0, gainThoughts = 0, nodes = 0, nodeSpent = 0;
     const beforeThought = s.runThoughts, limit = Math.min(elapsed, OFFLINE_LIMIT);
     for (let i = 0; i < limit; i++) {
       used++;
@@ -5998,17 +5951,20 @@ button {
         s.mindClock++;
         while (s.mindClock >= 30) {
           s.mindClock -= 30;
-          if (synthesizeNode()) nodes++
+          const cost = nodeCost();
+          if (synthesizeNode()) {
+            nodes++;
+            nodeSpent += cost;
+          }
         }
       }
-      if (!s.species && s.runThoughts >= 1000) {
+      if (!s.species && s.runThoughts >= 1000 && s.mode !== 'species') {
         s.mode = 'species';
         waiting = true;
-        break
       }
     }
     if (gainThoughts > 0) s.newCycleWelcome = false;
-    if (beforeThought < 50 && s.runThoughts >= 50) logEvent('离线期间，思维基础升级已开放。');
+    if (beforeThought < 50 && s.runThoughts >= 50) logEvent('离线期间，灵感升级已开放。');
     if (waiting) logEvent('离线期间念头达到 1000；等待选择生命载体。');
     const resources = [];
     if (s.species && s.worldview) {
@@ -6025,7 +5981,7 @@ button {
     }
     s.savedAt = now;
     return {
-      elapsed, used, waiting, paused: false, thoughts: gainThoughts, disturbances: gainDist, nodes, resources,
+      elapsed, used, waiting, paused: false, thoughts: gainThoughts, disturbances: gainDist, nodes, nodeSpent, resources,
           capped: elapsed > OFFLINE_LIMIT
     }
   }
@@ -6042,9 +5998,9 @@ button {
       `离开时间：${format(report.elapsed)}；本次结算：${format(report.used)}。`,
       report.paused ? '当前阶段正在等待你的操作，离线期间未自动推进。' :
                       `获得 ${report.thoughts} 念头与 ${report.disturbances} 扰动。`,
-      ...(report.nodes ? [`合成 ${report.nodes} 知识节点，消耗 ${report.nodes * 100} 念头。`] : []),
+      ...(report.nodes ? [`合成 ${report.nodes} 知识节点，消耗 ${report.nodeSpent} 念头。`] : []),
       ...report.resources.map(x => `获得 ${x.amount} ${x.name}。`),
-      ...(report.waiting ? ['思维已触及生命载体的选择；后续离线增长在此暂停，等待你的决定。'] : []),
+      ...(report.waiting ? ['生命载体选择已开放，等待选择期间思维资源继续累积。'] : []),
       ...(report.capped ? ['离线结算上限为 8 小时。'] : [])
     ];
     for (const line of lines) {
@@ -6091,9 +6047,9 @@ button {
     return 1 - .05 * (s.legacyBoosts.thoughtSpeed || 0)
   }
   function outputAvailable(id) {
-    return id === 'frequency' ? s.runThoughts >= 500 :
-        id === 'growth'       ? s.runThoughts >= 200 :
-        id === 'network'      ? s.runThoughts >= 100 :
+    return id === 'frequency' ? s.runThoughts >= 100 :
+        id === 'growth'       ? s.runThoughts >= 100 :
+        id === 'network'      ? s.runThoughts >= 50 :
                                 !!s.spiritLanguageUnlocked
   }
 
