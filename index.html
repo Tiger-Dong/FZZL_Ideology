@@ -1,10 +1,19 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-appearance="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="color-scheme" content="dark">
+<meta name="color-scheme" content="dark light">
 <title>FZZL · 空无</title>
+<script type="text/javascript">
+const APPEARANCE_STORAGE_KEY = 'fzzl_appearance';
+try {
+  const savedAppearance = localStorage.getItem(APPEARANCE_STORAGE_KEY);
+  if (savedAppearance) document.documentElement.dataset.appearance = savedAppearance;
+} catch {
+  // 无法读取本机偏好时，沿用默认暗色。
+}
+</script>
 <style>
 :root {
   color-scheme:dark;
@@ -17,6 +26,61 @@
   --glow:#d5eee8;
   --accent:#a8d9cf;
   font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif
+}
+/* 暗色沿用各组件的原始色值。新增外观在此定义自己的色板。 */
+:root[data-appearance="light"] {
+  color-scheme:light;
+  --bg:#e5ebe6;
+  --world-bg:#edf0eb;
+  --sidebar-bg:#e7ede8;
+  --surface-upgrades:#e3ebe5bb;
+  --surface-card:#f1f4ef;
+  --surface-goal:#f2f5f0eb;
+  --surface-dialog:#f4f6f1;
+  --surface-inset:#eaf0ea;
+  --surface-control:#e9f0e9;
+  --surface-selected:#d7e8df;
+  --surface-scrim:#243a3470;
+  --line:#bdcbc3;
+  --edge-subtle:#c5d2c9;
+  --edge-control:#73877e;
+  --edge-active:#52766b;
+  --text:#20332e;
+  --ink:var(--text);
+  --ink-secondary:#3d5650;
+  --ink-muted:#4e665e;
+  --ink-accent:#27584d;
+  --muted:var(--ink-muted);
+  --accent:var(--ink-accent);
+  --glow:var(--ink-accent);
+  --focus-ring:#346b5d;
+  --meter-track:#cedad2;
+  --meter-fill:#4a7b6e;
+  --aura-core:#7caf9d23;
+  --aura-edge:#62978435;
+  --aura-hover:#4f8772a0;
+  --aura-ripple:#62978460;
+  --aura-shadow:#74a99624;
+  --heading-glow:#699a8628;
+  --dialog-shadow:#253e332e;
+  --disabled-bg:#e9eee9;
+  --disabled-ink:#54675f;
+}
+:root[data-appearance="light"] :is(.tool-btn, .upgrade-card button, .upgrade-footer button, .trial-option):disabled {
+  opacity:1;
+  color:var(--disabled-ink);
+  background:var(--disabled-bg);
+  border-color:var(--edge-subtle)
+}
+:root[data-appearance="light"] .trial-option:disabled :is(strong, span) {
+  color:var(--disabled-ink)
+}
+:root[data-appearance="light"] :is(.upgrade-tab:disabled, .res-row:disabled, .res-row.subordinate) {
+  opacity:1;
+  color:var(--disabled-ink)
+}
+:root[data-appearance="light"] :is(.res-row:disabled, .res-row.subordinate) :is(.res-name, .res-value, .res-cap, .res-sub, .resource-rate) {
+  color:var(--disabled-ink)
 }
 * {
   box-sizing:border-box
@@ -43,28 +107,14 @@ button {
 }
 .world {
   min-height:100vh;
-  background:#000;
+  background:var(--world-bg, #000);
   position:relative;
   display:flex;
   flex-direction:column;
   align-items:center;
   justify-content:center;
   overflow:hidden;
-  border-right:1px solid #111
-}
-.world:before {
-  content:"";
-  position:absolute;
-  width:min(52vw,560px);
-  height:min(52vw,560px);
-  border-radius:50%;
-  border:1px solid #cde9e508;
-  box-shadow:inset 0 0 120px #bbffef05;
-  opacity:0;
-  transition:opacity 1.8s
-}
-.world.awake:before {
-  opacity:1
+  border-right:1px solid var(--edge-subtle, #111)
 }
 .topline {
   position:absolute;
@@ -74,13 +124,13 @@ button {
   display:flex;
   align-items:center;
   justify-content:space-between;
-  color:#5c6871;
+  color:var(--ink-muted, #5c6871);
   font-size:11px;
   letter-spacing:.17em;
   text-transform:uppercase
 }
 .cycle {
-  border:1px solid #1b252b;
+  border:1px solid var(--edge-subtle, #1b252b);
   border-radius:99px;
   padding:7px 11px;
   letter-spacing:.08em
@@ -97,7 +147,7 @@ button {
 }
 .caption {
   font-size:10px;
-  color:#71817e;
+  color:var(--ink-muted, #71817e);
   letter-spacing:.24em;
   text-transform:uppercase;
   margin-bottom:16px
@@ -111,7 +161,7 @@ button {
   min-height:1.5em
 }
 .hint {
-  color:#66706f;
+  color:var(--ink-muted, #66706f);
   font-size:12px;
   margin-top:10px
 }
@@ -120,9 +170,9 @@ button {
   width:148px;
   height:148px;
   border-radius:50%;
-  border:1px solid #b4e7dc22;
-  background:radial-gradient(circle,#b9eee70c,transparent 68%);
-  color:#e5f3ef;
+  border:1px solid var(--aura-edge, #b4e7dc22);
+  background:radial-gradient(circle,var(--aura-core, #b9eee70c),transparent 68%);
+  color:var(--ink, #e5f3ef);
   cursor:pointer;
   display:grid;
   place-items:center;
@@ -131,8 +181,8 @@ button {
   animation:breathe 4s ease-in-out infinite
 }
 .main-action:hover {
-  border-color:#bdece477;
-  box-shadow:0 0 50px #9fe8db12;
+  border-color:var(--aura-hover, #bdece477);
+  box-shadow:0 0 50px var(--aura-shadow, #9fe8db12);
   transform:scale(1.035)
 }
 .main-action:focus-visible {
@@ -146,7 +196,7 @@ button {
   font-family:serif;
   font-size:28px;
   letter-spacing:4px;
-  color:#c3dfd9
+  color:var(--ink-accent, #c3dfd9)
 }
 .main-action.words {
   width:auto;
@@ -159,8 +209,8 @@ button {
   font-size:14px;
   letter-spacing:.04em;
   animation:none;
-  background:#0b1214;
-  border-color:#42625c
+  background:var(--surface-control, #0b1214);
+  border-color:var(--edge-active, #42625c)
 }
 .main-action.thought {
   width:auto;
@@ -171,8 +221,8 @@ button {
   border-radius:12px;
   font-size:14px;
   animation:none;
-  background:#111a1b;
-  border-color:#3c625c
+  background:var(--surface-control, #111a1b);
+  border-color:var(--edge-active, #3c625c)
 }
 .empty-prompt {
   position:absolute;
@@ -196,7 +246,7 @@ button {
   position:absolute;
   width:12px;
   height:12px;
-  border:1px solid #c6fff133;
+  border:1px solid var(--aura-ripple, #c6fff133);
   border-radius:50%;
   pointer-events:none;
   animation:ripple 1.4s ease-out forwards
@@ -209,8 +259,8 @@ button {
 }
 @keyframes breathe {
   50% {
-    box-shadow:0 0 44px #a8e3d30b;
-    border-color:#b4e7dc35
+    box-shadow:0 0 44px var(--aura-shadow, #a8e3d30b);
+    border-color:var(--aura-edge, #b4e7dc35)
   }
 }
 .left-actions {
@@ -225,17 +275,17 @@ button {
   flex-wrap:wrap
 }
 .tool-btn,.choice {
-  border:1px solid #202d31;
-  background:#0b1113;
-  color:#bdcbc8;
+  border:1px solid var(--edge-control, #202d31);
+  background:var(--surface-control, #0b1113);
+  color:var(--ink-secondary, #bdcbc8);
   border-radius:10px;
   padding:9px 12px;
   font-size:11px;
   cursor:pointer
 }
 .tool-btn:hover:not(:disabled),.choice:hover {
-  border-color:#66877e;
-  color:#effbf7
+  border-color:var(--edge-active, #66877e);
+  color:var(--ink, #effbf7)
 }
 .tool-btn:disabled {
   opacity:.35;
@@ -251,7 +301,7 @@ button {
 .choice-backdrop {
   position:absolute;
   inset:0;
-  background:#000b;
+  background:var(--surface-scrim, #000b);
   display:grid;
   place-items:center;
   padding:20px
@@ -259,10 +309,10 @@ button {
 .choice-dialog {
   width:min(520px,100%);
   padding:24px;
-  border:1px solid #304440;
+  border:1px solid var(--edge-control, #304440);
   border-radius:16px;
-  background:#0a1012;
-  box-shadow:0 24px 90px #000c;
+  background:var(--surface-inset, #0a1012);
+  box-shadow:0 24px 90px var(--dialog-shadow, #000c);
   text-align:center
 }
 .choice-dialog h2 {
@@ -272,7 +322,7 @@ button {
 }
 .choice-dialog p {
   margin:0 0 18px;
-  color:#869590;
+  color:var(--ink-secondary, #869590);
   font-size:12px;
   line-height:1.6
 }
@@ -288,13 +338,13 @@ button {
 .choice strong {
   display:block;
   font-size:14px;
-  color:#e5efeb
+  color:var(--ink, #e5efeb)
 }
 .choice span {
   display:block;
   margin-top:6px;
   font-size:10px;
-  color:#84918c
+  color:var(--ink-secondary, #84918c)
 }
 .cycle-notice {
   position:absolute;
@@ -302,25 +352,25 @@ button {
   left:50%;
   transform:translateX(-50%);
   z-index:2;
-  color:#91aaa3;
+  color:var(--ink-accent, #91aaa3);
   font-size:11px;
   letter-spacing:.12em;
   white-space:nowrap
 }
 .upgrade-notice {
-  color:#8caaa2;
+  color:var(--ink-accent, #8caaa2);
   font-size:9px;
   line-height:1.5;
   margin:0 0 8px
 }
 .worldview-data {
-  border-color:#466b62;
-  box-shadow:0 0 22px #76cdb41a;
-  background:#0a1112
+  border-color:var(--edge-active, #466b62);
+  box-shadow:0 0 22px var(--aura-shadow, #76cdb41a);
+  background:var(--surface-card, #0a1112)
 }
 .worldview-data-head {
   padding:9px 10px 0;
-  color:#b9d8ce;
+  color:var(--ink-accent, #b9d8ce);
   font-size:13px;
   font-weight:500;
   letter-spacing:.06em
@@ -333,7 +383,7 @@ button {
 }
 .worldview-data-scale {
   font-size:10px;
-  color:#9aafa8;
+  color:var(--ink-secondary, #9aafa8);
   margin-top:2px
 }
 .worldview-data-race {
@@ -342,12 +392,12 @@ button {
   column-gap:24px;
   row-gap:4px;
   font-size:10px;
-  color:#d1ded8;
+  color:var(--ink-secondary, #d1ded8);
   margin-top:4px
 }
 .worldview-branches-label {
   font-size:9px;
-  color:#72817d;
+  color:var(--ink-muted, #72817d);
   margin:5px 0 3px
 }
 .worldview-branches {
@@ -357,9 +407,9 @@ button {
 }
 .worldview-branches span {
   padding:4px 7px;
-  border:1px solid #29433d;
+  border:1px solid var(--edge-control, #29433d);
   border-radius:99px;
-  color:#b7d5cc;
+  color:var(--ink-accent, #b7d5cc);
   font-size:9px
 }
 .resource-category {
@@ -371,11 +421,11 @@ button {
 .resource-category h3 {
   margin:6px 0 2px;
   padding:5px 2px;
-  color:#82918c;
+  color:var(--ink-secondary, #82918c);
   font-size:9px;
   font-weight:500;
   letter-spacing:.1em;
-  border-bottom:1px solid #172025
+  border-bottom:1px solid var(--edge-subtle, #172025)
 }
 .res-row:disabled {
   cursor:default;
@@ -386,25 +436,25 @@ button {
   flex-direction:column;
   gap:6px;
   padding:12px;
-  border:1px solid #2c423e;
+  border:1px solid var(--edge-control, #2c423e);
   border-radius:10px;
-  background:#0d1717;
+  background:var(--surface-control, #0d1717);
   margin-bottom:8px
 }
 .worldview-card span,.worldview-card small {
   font-size:9px;
-  color:#7f918b
+  color:var(--ink-muted, #7f918b)
 }
 .worldview-card strong {
   font-size:14px;
-  color:#dcebe5;
+  color:var(--ink, #dcebe5);
   font-weight:500
 }
 .res-row.subordinate {
   opacity:.52
 }
 .upgrade-category {
-  border-top:1px solid #1b292b;
+  border-top:1px solid var(--edge-subtle, #1b292b);
   padding-top:9px;
   margin-top:9px
 }
@@ -415,7 +465,7 @@ button {
 }
 .upgrade-category h3 {
   margin:0 0 7px;
-  color:#9eafaa;
+  color:var(--ink-secondary, #9eafaa);
   font-size:10px;
   font-weight:500;
   letter-spacing:.08em
@@ -426,7 +476,7 @@ button {
   gap:7px
 }
 .aside {
-  background:#080b0e;
+  background:var(--sidebar-bg, #080b0e);
   padding:23px 17px;
   display:flex;
   flex-direction:column;
@@ -435,7 +485,7 @@ button {
   max-height:100vh;
   position:sticky;
   top:0;
-  border-left:1px solid #111
+  border-left:1px solid var(--edge-subtle, #111)
 }
 .aside-head {
   display:flex;
@@ -448,27 +498,27 @@ button {
   font-size:12px;
   letter-spacing:.16em;
   font-weight:500;
-  color:#9caaa8;
-  text-shadow:0 0 8px rgba(168, 217, 207, 0.25)
+  color:var(--ink-secondary, #9caaa8);
+  text-shadow:0 0 8px var(--heading-glow, rgba(168, 217, 207, 0.25))
 }
 .reset {
   border:0;
   background:none;
-  color:#69757d;
+  color:var(--ink-muted, #69757d);
   font-size:10px;
   cursor:pointer
 }
 .group {
-  border:1px solid #1c262c;
+  border:1px solid var(--edge-subtle, #1c262c);
   border-radius:11px;
-  background:#090d11;
+  background:var(--surface-card, #090d11);
   overflow:hidden
 }
 .group summary {
   list-style:none;
   padding:12px 13px;
   cursor:pointer;
-  color:#acbbb8;
+  color:var(--ink-secondary, #acbbb8);
   font-size:11px;
   letter-spacing:.07em;
   display:flex;
@@ -480,7 +530,7 @@ button {
 }
 .group summary:after {
   content:"＋";
-  color:#66746f;
+  color:var(--ink-muted, #66746f);
   font-size:12px
 }
 .group[open] summary:after {
@@ -497,23 +547,23 @@ button {
   text-align:left;
   padding:9px 2px;
   border:0;
-  border-top:1px solid #172025;
+  border-top:1px solid var(--edge-subtle, #172025);
   background:none;
   cursor:pointer
 }
 .res-name {
   font-size:11px;
-  color:#c4cfcc
+  color:var(--ink-secondary, #c4cfcc)
 }
 .res-value {
   font-size:13px;
-  color:#edf5f1;
+  color:var(--ink, #edf5f1);
   font-variant-numeric:tabular-nums
 }
 .res-sub {
   grid-column:1/-1;
   font-size:9px;
-  color:#63716e;
+  color:var(--ink-muted, #63716e);
   margin-top:4px;
   line-height:1.5;
   display:none
@@ -526,18 +576,18 @@ button {
   justify-content:space-between;
   gap:10px;
   padding:9px 2px;
-  border-top:1px solid #172025;
-  color:#606c6a;
+  border-top:1px solid var(--edge-subtle, #172025);
+  color:var(--ink-muted, #606c6a);
   font-size:10px
 }
 .locked b {
   font-weight:400;
-  color:#76827e
+  color:var(--ink-muted, #76827e)
 }
 .side-note {
   font-size:12px;
   line-height:1.6;
-  color:#b4c8c1;
+  color:var(--ink-secondary, #b4c8c1);
   margin-top:auto;
   padding:8px 3px
 }
@@ -547,10 +597,10 @@ button {
   left:calc((100vw - 320px)/2);
   transform:translateX(-50%);
   padding:10px 14px;
-  border:1px solid #344c47;
+  border:1px solid var(--edge-control, #344c47);
   border-radius:10px;
-  background:#111b1b;
-  color:#d8ece5;
+  background:var(--surface-control, #111b1b);
+  color:var(--ink-accent, #d8ece5);
   font-size:11px;
   z-index:8;
   opacity:0;
@@ -572,16 +622,12 @@ button {
     min-height:70vh;
     min-height:70svh;
     border-right:0;
-    border-bottom:1px solid #172022
+    border-bottom:1px solid var(--edge-subtle, #172022)
   }
   .topline {
     top:10px;
     left:10px;
     right:15px
-  }
-  .world:before {
-    width:min(72vw,430px);
-    height:min(72vw,430px)
   }
   .aside {
     position:relative;
@@ -645,27 +691,27 @@ button {
   align-items:center;
   gap:8px;
   padding:1px 0 8px;
-  color:#788b85;
+  color:var(--ink-muted, #788b85);
   font-size:10px
 }
 .resource-settings-toggle {
-  border:1px solid #283a38;
+  border:1px solid var(--edge-control, #283a38);
   border-radius:6px;
-  background:#10191a;
-  color:#b8d2ca;
+  background:var(--surface-control, #10191a);
+  color:var(--ink-accent, #b8d2ca);
   padding:5px 8px;
   cursor:pointer
 }
 .resource-settings {
   padding:8px;
   margin-bottom:8px;
-  border:1px solid #263a37;
+  border:1px solid var(--edge-control, #263a37);
   border-radius:8px;
-  background:#0c1515
+  background:var(--surface-control, #0c1515)
 }
 .resource-settings p {
   margin:0 0 7px;
-  color:#91a59e;
+  color:var(--ink-secondary, #91a59e);
   font-size:10px
 }
 .resource-options {
@@ -677,12 +723,12 @@ button {
   display:flex;
   align-items:center;
   gap:4px;
-  color:#b8cac4;
+  color:var(--ink-secondary, #b8cac4);
   font-size:11px;
   cursor:pointer
 }
 .resource-options input {
-  accent-color:#87bfb0
+  accent-color:var(--meter-fill, #87bfb0)
 }
 .resource-table-head,.resource-table .res-row {
   display:grid;
@@ -692,7 +738,7 @@ button {
 }
 .resource-table-head {
   padding:3px 2px 5px;
-  color:#667a73;
+  color:var(--ink-muted, #667a73);
   font-size:9px;
   text-align:right
 }
@@ -708,17 +754,17 @@ button {
   white-space:nowrap
 }
 .resource-table .res-cap {
-  color:#74847f
+  color:var(--ink-muted, #74847f)
 }
 .resource-rate {
   font-size:10px;
   text-align:right;
   white-space:nowrap;
-  color:#a8c9bc;
+  color:var(--ink-accent, #a8c9bc);
   font-variant-numeric:tabular-nums
 }
 .resource-rate.paused {
-  color:#77827f
+  color:var(--ink-muted, #77827f)
 }
 .resource-table .res-sub {
   grid-column:1/-1;
@@ -726,11 +772,11 @@ button {
 }
 .resource-empty {
   font-size:10px;
-  color:#788983;
+  color:var(--ink-muted, #788983);
   padding:8px 2px
 }
 .resource-table .res-row:focus-visible,.resource-settings-toggle:focus-visible {
-  outline:2px solid #a8d9cf;
+  outline:2px solid var(--focus-ring, #a8d9cf);
   outline-offset:2px
 }
 </style>
@@ -744,7 +790,7 @@ button {
   padding:8px 14px 10px;
   border:1px solid transparent;
   border-radius:0;
-  background:rgba(7,11,14,.55);
+  background:var(--surface-upgrades, rgba(7,11,14,.55));
   box-shadow:none;
   backdrop-filter:blur(10px);
   max-height:190px;
@@ -775,7 +821,7 @@ button {
   font-size:10px;
   letter-spacing:.12em;
   text-transform:uppercase;
-  color:#a1b2ae;
+  color:var(--ink-secondary, #a1b2ae);
   font-weight:500;
   white-space:nowrap
 }
@@ -789,16 +835,16 @@ button {
 .upgrade-tab {
   border:1px solid transparent;
   background:transparent;
-  color:#697873;
+  color:var(--ink-muted, #697873);
   border-radius:7px;
   padding:5px 9px;
   font-size:10px;
   cursor:pointer
 }
 .upgrade-tab.active {
-  color:#d9f0e9;
-  border-color:#35534e;
-  background:#12201e
+  color:var(--ink-accent, #d9f0e9);
+  border-color:var(--edge-control, #35534e);
+  background:var(--surface-selected, #12201e)
 }
 .upgrade-tab:disabled {
   opacity:.42;
@@ -818,31 +864,31 @@ button {
   grid-template-columns:minmax(0,1fr) auto;
   gap:8px;
   align-items:center;
-  border:1px solid #1e2c30;
-  background:#0b1114;
+  border:1px solid var(--edge-subtle, #1e2c30);
+  background:var(--surface-card, #0b1114);
   border-radius:10px;
   padding:9px 10px
 }
 .upgrade-card strong {
   font-size:11px;
   font-weight:500;
-  color:#dce7e2
+  color:var(--ink, #dce7e2)
 }
 .upgrade-card p {
   font-size:9px;
   line-height:1.45;
-  color:#75847f;
+  color:var(--ink-muted, #75847f);
   margin:4px 0 0
 }
 /* 简短描述略小于名称，并保持足够对比度。 */
 .upgrade-card > div > strong + p {
   font-size:10px;
-  color:#a0b1ab;
+  color:var(--ink-secondary, #a0b1ab);
 }
 .upgrade-card button,.upgrade-footer button {
-  border:1px solid #3b625b;
-  background:#11231f;
-  color:#c9eee2;
+  border:1px solid var(--edge-active, #3b625b);
+  background:var(--surface-selected, #11231f);
+  color:var(--ink-accent, #c9eee2);
   border-radius:8px;
   padding:8px 10px;
   font-size:10px;
@@ -955,21 +1001,6 @@ button {
 }
 </style>
 <style>
-.world {
-  --ring-size:min(62vmin,680px)
-}
-.world:before {
-  top:50%;
-  left:50%;
-  width:var(--ring-size);
-  height:var(--ring-size);
-  transform:translate(-50%,-50%);
-  z-index:0;
-  pointer-events:none
-}
-.world.thought-phase {
-  --ring-size:min(96vmin,1040px)
-}
 .scene-stack {
   position:absolute;
   z-index:2;
@@ -1016,35 +1047,32 @@ button {
 }
 .completed-title {
   margin:10px 0 5px;
-  color:#99aaa5;
+  color:var(--ink-secondary, #99aaa5);
   font-size:10px;
   letter-spacing:.08em
 }
 .completed-card {
-  border:1px solid #1b282b;
-  background:#080d0f;
+  border:1px solid var(--edge-subtle, #1b282b);
+  background:var(--surface-card, #080d0f);
   border-radius:9px;
   padding:8px 10px;
-  color:#7f928c;
+  color:var(--ink-muted, #7f928c);
   font-size:10px;
   line-height:1.5
 }
 .completed-card strong {
-  color:#b9cec7;
+  color:var(--ink-secondary, #b9cec7);
   font-weight:500
 }
 .special-empty {
   padding:10px 2px;
-  color:#71807b;
+  color:var(--ink-muted, #71807b);
   font-size:10px;
   line-height:1.6
 }
 .world.has-upgrades .scene-stack {
   left:calc(50% + 120px);
   width:min(800px,calc(100% - 300px))
-}
-.world.has-upgrades:has(#upgradeTitle) {
-  --ring-size:min(96vmin,1040px)
 }
 @media(max-width:1000px) {
   .scene-stack {
@@ -1056,9 +1084,6 @@ button {
     left:50%;
     top:calc(50% - 95px);
     width:calc(100% - 30px)
-  }
-  .world.thought-phase {
-    --ring-size:min(90vmin,860px)
   }
 }
 @media(max-width:560px) {
@@ -1080,9 +1105,6 @@ button {
   .world.has-upgrades .scene-stack {
     top:calc(50% - 115px);
     width:calc(100% - 18px)
-  }
-  .world.has-upgrades {
-    --ring-size:min(94vmin,720px)
   }
 }
 @media(min-width:1001px) {
@@ -1118,12 +1140,6 @@ button {
   }
 }
 @media(min-width:761px) {
-  .world:before {
-    left:calc(50% + var(--aside-width)/2)
-  }
-  .world.thought-phase,.world.has-upgrades:has(#upgradeTitle) {
-    --ring-size:min(90vmin,980px,calc(100% - var(--aside-width)))
-  }
   .scene-stack,.world.has-upgrades .scene-stack {
     left:calc(50% + var(--aside-width)/2)
   }
@@ -1135,9 +1151,6 @@ button {
   }
 }
 @media(max-width:760px) {
-  .world:before {
-    left:50%
-  }
   .scene-stack,.world.has-upgrades .scene-stack {
     left:50%
   }
@@ -1162,9 +1175,9 @@ button {
   transform:translateX(-50%);
   width:min(380px,calc(100% - 32px));
   padding:10px 13px;
-  border:1px solid #1b292d;
+  border:1px solid var(--edge-subtle, #1b292d);
   border-radius:11px;
-  background:#070b0dcc;
+  background:var(--surface-goal, #070b0dcc);
   backdrop-filter:blur(8px);
   pointer-events:none
 }
@@ -1172,7 +1185,7 @@ button {
   display:none
 }
 .goal-kicker {
-  color:#71817c;
+  color:var(--ink-muted, #71817c);
   font-size:9px;
   letter-spacing:.14em
 }
@@ -1186,17 +1199,17 @@ button {
 .goal-main strong {
   font-size:12px;
   font-weight:500;
-  color:#dce9e4
+  color:var(--ink, #dce9e4)
 }
 .goal-main span {
   font-size:11px;
-  color:#a8d9cf;
+  color:var(--ink-accent, #a8d9cf);
   font-variant-numeric:tabular-nums;
   white-space:nowrap
 }
 .goal-detail {
   margin:4px 0 0;
-  color:#778680;
+  color:var(--ink-muted, #778680);
   font-size:10px;
   line-height:1.45
 }
@@ -1204,7 +1217,7 @@ button {
   height:3px;
   margin-top:8px;
   border-radius:9px;
-  background:#172022;
+  background:var(--meter-track, #172022);
   overflow:hidden
 }
 .goal-meter i {
@@ -1212,7 +1225,7 @@ button {
   width:0;
   height:100%;
   border-radius:inherit;
-  background:#8dc7b9;
+  background:var(--meter-fill, #8dc7b9);
   transition:width .35s ease
 }
 .story-log {
@@ -1221,16 +1234,16 @@ button {
 }
 .story-log-entry {
   padding:7px 8px;
-  border-left:1px solid #36564f;
-  background:#0a1012;
-  color:#9aa9a3;
+  border-left:1px solid var(--edge-active, #36564f);
+  background:var(--surface-inset, #0a1012);
+  color:var(--ink-secondary, #9aa9a3);
   font-size:10px;
   line-height:1.45
 }
 .story-log-entry small {
   display:block;
   margin-bottom:2px;
-  color:#586761;
+  color:var(--ink-muted, #586761);
   font-size:8px;
   letter-spacing:.08em
 }
@@ -1241,16 +1254,16 @@ button {
 }
 .trial-option {
   min-height:110px;
-  border:1px solid #263b39;
+  border:1px solid var(--edge-control, #263b39);
   border-radius:10px;
-  background:#0c1415;
+  background:var(--surface-control, #0c1415);
   padding:12px;
   text-align:left;
   cursor:pointer
 }
 .trial-option:hover {
-  border-color:#6a9c8e;
-  background:#10201d
+  border-color:var(--edge-active, #6a9c8e);
+  background:var(--surface-selected, #10201d)
 }
 .trial-option:disabled {
   opacity:.38;
@@ -1258,20 +1271,20 @@ button {
 }
 .trial-option strong {
   display:block;
-  color:#dfece6;
+  color:var(--ink, #dfece6);
   font-size:12px;
   font-weight:500
 }
 .trial-option span {
   display:block;
   margin-top:6px;
-  color:#91a19b;
+  color:var(--ink-secondary, #91a19b);
   font-size:10px;
   line-height:1.5
 }
 .trial-check {
   margin:0 0 12px;
-  color:#8eaaa0;
+  color:var(--ink-accent, #8eaaa0);
   font-size:11px
 }
 .caption {
@@ -1326,7 +1339,7 @@ button {
 }
 #offlineReport .encyclopedia-dialog header { align-items:flex-end; gap:12px; flex-wrap:wrap; }
 #offlineTitle { letter-spacing:.04em; }
-#offlineTime { margin:0 0 1px auto; color:#91a69e; font-size:12px; text-align:right; line-height:1.4; }
+#offlineTime { margin:0 0 1px auto; color:var(--ink-secondary, #91a69e); font-size:12px; text-align:right; line-height:1.4; }
 #offlineBody {
   border:0;
   border-radius:0;
@@ -1336,7 +1349,7 @@ button {
   line-height:1.35;
 }
 #offlineBody p { margin:1px 0; }
-#offlineBody .offline-gains { margin:0 0 2px -16px; color:#d1e0d9; }
+#offlineBody .offline-gains { margin:0 0 2px -16px; color:var(--ink-secondary, #d1e0d9); }
 </style>
 <style>
 #offlineReport {
@@ -1357,7 +1370,7 @@ button {
   }
 }
 .upgrade-preview {
-  color:#a8d9cf!important;
+  color:var(--ink-accent, #a8d9cf)!important;
   font-variant-numeric:tabular-nums
 }
 .aside-tools {
@@ -1366,17 +1379,17 @@ button {
   gap:12px
 }
 .encyclopedia-open {
-  border:1px solid #243832;
+  border:1px solid var(--edge-control, #243832);
   border-radius:7px;
-  background:#0d1515;
-  color:#a9c8bd;
+  background:var(--surface-control, #0d1515);
+  color:var(--ink-accent, #a9c8bd);
   padding:6px 8px;
   font-size:9px;
   cursor:pointer
 }
 .encyclopedia-open:hover {
-  border-color:#638b7d;
-  color:#e5f3ed
+  border-color:var(--edge-active, #638b7d);
+  color:var(--ink-accent, #e5f3ed)
 }
 .encyclopedia {
   position:fixed;
@@ -1392,7 +1405,7 @@ button {
 .encyclopedia-backdrop {
   position:absolute;
   inset:0;
-  background:#000d;
+  background:var(--surface-scrim, #000d);
   backdrop-filter:blur(5px)
 }
 .encyclopedia-dialog {
@@ -1401,22 +1414,22 @@ button {
   max-height:min(82vh,760px);
   display:flex;
   flex-direction:column;
-  border:1px solid #2b403b;
+  border:1px solid var(--edge-control, #2b403b);
   border-radius:16px;
-  background:#090e11;
-  box-shadow:0 24px 90px #000d;
+  background:var(--surface-dialog, #090e11);
+  box-shadow:0 24px 90px var(--dialog-shadow, #000d);
   padding:22px
 }
 .encyclopedia-dialog header {
   display:flex;
   align-items:center;
   justify-content:space-between;
-  border-bottom:1px solid #1c292b;
+  border-bottom:1px solid var(--edge-subtle, #1c292b);
   padding-bottom:14px
 }
 .encyclopedia-kicker {
   font-size:9px;
-  color:#78948a;
+  color:var(--ink-muted, #78948a);
   letter-spacing:.14em
 }
 .encyclopedia-dialog h2 {
@@ -1427,10 +1440,10 @@ button {
 .encyclopedia-close {
   width:32px;
   height:32px;
-  border:1px solid #263432;
+  border:1px solid var(--edge-control, #263432);
   border-radius:50%;
-  background:#0d1416;
-  color:#b8c9c2;
+  background:var(--surface-control, #0d1416);
+  color:var(--ink-secondary, #b8c9c2);
   font-size:20px;
   cursor:pointer
 }
@@ -1439,16 +1452,16 @@ button {
   align-items:center;
   gap:12px;
   margin:14px 0;
-  color:#899b94;
+  color:var(--ink-secondary, #899b94);
   font-size:10px
 }
 .encyclopedia-search input {
   flex:1;
   min-width:0;
-  border:1px solid #243330;
+  border:1px solid var(--edge-control, #243330);
   border-radius:8px;
-  background:#060a0c;
-  color:#e2ece7;
+  background:var(--surface-inset, #060a0c);
+  color:var(--ink, #e2ece7);
   padding:9px 11px;
   font:inherit
 }
@@ -1470,47 +1483,47 @@ button {
   border:1px solid transparent;
   border-radius:8px;
   background:transparent;
-  color:#9aaba4;
+  color:var(--ink-secondary, #9aaba4);
   padding:8px 9px;
   text-align:left;
   font-size:10px;
   cursor:pointer
 }
 .encyclopedia-entry:hover,.encyclopedia-entry.active {
-  border-color:#304a42;
-  background:#101b19;
-  color:#def0e8
+  border-color:var(--edge-control, #304a42);
+  background:var(--surface-selected, #101b19);
+  color:var(--ink-accent, #def0e8)
 }
 .encyclopedia-entry small {
   display:block;
   margin-top:3px;
-  color:#657670;
+  color:var(--ink-muted, #657670);
   font-size:8px
 }
 .encyclopedia-article {
   overflow:auto;
-  border:1px solid #1d2c2d;
+  border:1px solid var(--edge-subtle, #1d2c2d);
   border-radius:11px;
-  background:#0a1012;
+  background:var(--surface-inset, #0a1012);
   padding:18px 20px;
-  color:#b7c5bf;
+  color:var(--ink-secondary, #b7c5bf);
   line-height:1.75;
   font-size:12px
 }
 .encyclopedia-article h3 {
   margin:0 0 4px;
-  color:#e4eee9;
+  color:var(--ink, #e4eee9);
   font-size:18px;
   font-weight:500
 }
 .encyclopedia-article .encyclopedia-category {
-  color:#88aa9e;
+  color:var(--ink-accent, #88aa9e);
   font-size:9px;
   letter-spacing:.1em
 }
 .encyclopedia-article .encyclopedia-summary {
   margin:8px 0 14px;
-  color:#d1e0d9;
+  color:var(--ink-secondary, #d1e0d9);
   font-size:13px
 }
 .encyclopedia-article p {
@@ -1530,16 +1543,16 @@ button {
 .upgrade-card small .encyclopedia-link {
   border:0;
   background:none;
-  color:#9eb8ad;
+  color:var(--ink-accent, #9eb8ad);
   padding:1px 4px;
   font-size:8px;
   cursor:pointer
 }
 .upgrade-card small .encyclopedia-link:hover {
-  color:#d8eee5
+  color:var(--ink-accent, #d8eee5)
 }
 .upgrade-card .encyclopedia-link:hover {
-  color:#d8eee5
+  color:var(--ink-accent, #d8eee5)
 }
 .upgrade-card strong .encyclopedia-link {
   border:0;
@@ -1551,7 +1564,7 @@ button {
   cursor:pointer;
 }
 .upgrade-card strong .encyclopedia-link:focus-visible {
-  outline:2px solid #a8d9cf;
+  outline:2px solid var(--focus-ring, #a8d9cf);
   outline-offset:3px;
 }
 @media(max-width:600px) {
@@ -1678,8 +1691,8 @@ button {
   justify-content:flex-start;
   gap:10px;
   padding:12px 0;
-  border-bottom:1px solid #1c262c;
-  color:#acbbb8;
+  border-bottom:1px solid var(--edge-subtle, #1c262c);
+  color:var(--ink-secondary, #acbbb8);
   font-size:11px;
   letter-spacing:.07em
 }
@@ -1690,11 +1703,11 @@ button {
 .world-data-header select {
   max-width:70%;
   min-width:0;
-  border:1px solid rgba(110, 155, 143, 0.28);
+  border:1px solid var(--edge-control, rgba(110, 155, 143, 0.28));
   border-radius:7px;
   padding:7px 9px;
   background:transparent;
-  color:#acbbb8;
+  color:var(--ink-secondary, #acbbb8);
   font:inherit;
   font-size:1.1em;
   letter-spacing:.07em;
@@ -1705,14 +1718,14 @@ button {
   overflow-y:auto;
   overflow-x:hidden;
   overscroll-behavior:contain;
-  scrollbar-color:#38554c transparent;
+  scrollbar-color:var(--edge-active, #38554c) transparent;
   scrollbar-width:thin
 }
 .world-data-content>.group-body {
   padding:10px 12px 12px
 }
 .world-data-content:focus-visible,.world-data-header select:focus-visible {
-  outline:2px solid #a8d9cf;
+  outline:2px solid var(--focus-ring, #a8d9cf);
   outline-offset:-2px
 }
 .resource-table-head,.resource-table .res-row {
@@ -1751,7 +1764,7 @@ button {
 .upgrade-card small>.encyclopedia-link {
   border:0;
   background:none;
-  color:#9eb8ad;
+  color:var(--ink-accent, #9eb8ad);
   padding:3px;
   font-size:9px;
   cursor:pointer
@@ -1764,7 +1777,7 @@ button {
 </style>
 <style>
 .upgrade-cost {
-  color:#b6c9c0!important;
+  color:var(--ink-secondary, #b6c9c0)!important;
   font-size:10px!important;
   font-variant-numeric:tabular-nums;
   overflow-wrap:anywhere
@@ -1776,7 +1789,7 @@ button {
   max-width:45%;
   margin:0;
   text-align:right;
-  color:#8fa79c!important;
+  color:var(--ink-secondary, #8fa79c)!important;
   font-size:10px!important
 }
 .upgrade-card:has(.upgrade-level) > button {
@@ -1803,6 +1816,84 @@ button {
 .upgrade-panel .upgrade-card button { font-size:11px; }
 .upgrade-panel .upgrade-card strong .encyclopedia-link { font:inherit; }
 .upgrade-panel .upgrade-notice { font-size:10px; }
+
+#appearanceDialog {
+  width:min(390px,calc(100% - 24px));
+  height:auto;
+  max-height:calc(100dvh - 24px);
+  overflow:auto;
+  color:var(--text)
+}
+#appearanceDialog:not([open]) { display:none; }
+#appearanceDialog::backdrop {
+  background:#000b;
+  backdrop-filter:blur(4px)
+}
+:root[data-appearance="light"] #appearanceDialog::backdrop { background:#243a3470; }
+#appearanceDialog h2 { margin:0; }
+.appearance-options {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  border:0;
+  padding:0;
+  margin:14px 0
+}
+.appearance-option {
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:6px;
+  padding:9px;
+  border:1px solid var(--edge-control, #2b403b);
+  border-radius:9px;
+  background:var(--surface-card, #0b1114);
+  color:var(--ink-secondary, #bdcbc8);
+  font-size:13px;
+  cursor:pointer
+}
+.appearance-option:has(:checked) {
+  color:var(--ink, #e5f3ef);
+  border-color:var(--edge-active, #638b7d);
+  background:var(--surface-selected, #12201e)
+}
+.appearance-option:has(:focus-visible),#openAppearance:focus-visible {
+  outline:2px solid var(--focus-ring, #a8d9cf);
+  outline-offset:2px
+}
+.appearance-option input {
+  margin:0;
+  accent-color:var(--meter-fill, #8dc7b9)
+}
+.appearance-sample {
+  flex:0 0 100%;
+  height:32px;
+  border:1px solid var(--sample-edge);
+  border-radius:5px;
+  background:linear-gradient(to right,var(--sample-bg) 57%,var(--sample-panel) 57%)
+}
+.appearance-sample::after {
+  content:"";
+  display:block;
+  width:30%;
+  height:4px;
+  margin:13px 0 0 12%;
+  border-radius:4px;
+  background:var(--sample-ink)
+}
+.appearance-sample.dark {
+  --sample-bg:#000;
+  --sample-panel:#0b1114;
+  --sample-edge:#36564f;
+  --sample-ink:#a8d9cf
+}
+.appearance-sample.light {
+  --sample-bg:#edf0eb;
+  --sample-panel:#d7e8df;
+  --sample-edge:#73877e;
+  --sample-ink:#27584d
+}
+#appearanceDialog form > .tool-btn { width:100%; }
 </style>
 </head>
 <body>
@@ -1825,7 +1916,7 @@ button {
     </div>
   </main>
   <aside class="aside">
-    <div class="aside-head"><strong>世界数据</strong><div class="aside-tools"><button class="encyclopedia-open" id="openEncyclopedia" type="button">知识百科</button><button class="reset" id="reset">重置试玩</button></div></div>
+    <div class="aside-head"><strong>世界数据</strong><div class="aside-tools"><button class="encyclopedia-open" id="openAppearance" type="button" aria-haspopup="dialog">外观</button><button class="encyclopedia-open" id="openEncyclopedia" type="button">知识百科</button><button class="reset" id="reset">重置试玩</button></div></div>
     <section class="group world-data-panel" aria-label="世界数据分类">
       <div class="world-data-header"><select id="worldDataSelect" aria-label="选择世界数据分类"><option value="resource">资源仓库</option><option value="mind">思维网络</option><option value="story">本轮记忆</option><option value="life">载体与族群</option><option value="civil">文明与异界</option><option value="legacy">轮回遗产</option></select></div>
       <div class="world-data-content" id="worldDataContent" tabindex="0" aria-label="当前分类内容，可滚动">
@@ -1843,6 +1934,16 @@ button {
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <section class="encyclopedia" id="offlineReport" hidden aria-label="离线成长报告"><div class="encyclopedia-backdrop"></div><div class="encyclopedia-dialog" role="dialog" aria-modal="true" aria-labelledby="offlineTitle"><header><div><span class="encyclopedia-kicker">轮回记录</span><h2 id="offlineTitle">欢迎回来</h2></div><p id="offlineTime"></p></header><article class="encyclopedia-article" id="offlineBody"></article><button type="button" class="tool-btn" id="acceptOffline">继续</button></div></section>
 <section class="encyclopedia" id="encyclopedia" hidden aria-label="知识百科"><div class="encyclopedia-backdrop" data-close-encyclopedia></div><div class="encyclopedia-dialog" role="dialog" aria-modal="true" aria-labelledby="encyclopediaTitle"><header><div><span class="encyclopedia-kicker">FZZL · 记录与机制</span><h2 id="encyclopediaTitle">知识百科</h2></div><button type="button" class="encyclopedia-close" data-close-encyclopedia aria-label="关闭百科">×</button></header><label class="encyclopedia-search"><span>检索词条</span><input id="encyclopediaSearch" type="search" placeholder="搜索升级、资源或概念"></label><div class="encyclopedia-layout"><nav id="encyclopediaEntries" aria-label="百科词条"></nav><article class="encyclopedia-article" id="encyclopediaArticle" aria-live="polite"><h3>选择一条词条</h3><p>这里会显示升级机制、资源用途与轮回设定的详细说明。</p></article></div></div></section>
+<dialog class="encyclopedia-dialog" id="appearanceDialog" aria-labelledby="appearanceTitle">
+  <header><h2 id="appearanceTitle">外观</h2></header>
+  <form method="dialog">
+    <fieldset class="appearance-options" aria-label="界面配色">
+      <label class="appearance-option"><span class="appearance-sample dark" aria-hidden="true"></span><input type="radio" name="appearance" value="dark" checked> 暗色</label>
+      <label class="appearance-option"><span class="appearance-sample light" aria-hidden="true"></span><input type="radio" name="appearance" value="light"> 浅色</label>
+    </fieldset>
+    <button class="tool-btn" type="submit">完成</button>
+  </form>
+</dialog>
 <script>
 
 (() => {
@@ -6685,6 +6786,25 @@ button {
     return previousPreview16(id)
   };
   // UI_EVENTS_BEGIN
+  const appearanceDialog = $('appearanceDialog');
+  const appearanceForm = appearanceDialog.querySelector('form');
+  const appearanceOptions = appearanceForm.elements.appearance;
+  const root = document.documentElement;
+  appearanceOptions.value = root.dataset.appearance;
+  if (!appearanceOptions.value) {
+    appearanceOptions.value = 'dark';
+    root.dataset.appearance = 'dark';
+  }
+  $('openAppearance').addEventListener('click', () => appearanceDialog.showModal());
+  appearanceForm.addEventListener('change', () => {
+    const appearance = appearanceOptions.value;
+    root.dataset.appearance = appearance;
+    try {
+      localStorage.setItem(APPEARANCE_STORAGE_KEY, appearance)
+    } catch {
+      // 当前页面仍可切换外观。
+    }
+  });
   $('worldDataSelect').addEventListener('change', e => {
     s.worldDataView = e.target.value;
     updateWorldDataView();
@@ -6716,6 +6836,7 @@ button {
   document.querySelectorAll('[data-close-encyclopedia]')
       .forEach(b => b.addEventListener('click', closeEncyclopedia));
   window.addEventListener('keydown', e => {
+    if (appearanceDialog.open) return;
     if (!$('offlineReport').hidden) {
       if (e.key === 'Escape') $('offlineReport').hidden = true;
       return
