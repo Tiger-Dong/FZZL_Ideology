@@ -1817,6 +1817,37 @@ button {
 .upgrade-panel .upgrade-card strong .encyclopedia-link { font:inherit; }
 .upgrade-panel .upgrade-notice { font-size:10px; }
 
+.world-data-tabs,.cycle-data-tabs { display:flex; flex-wrap:wrap; gap:8px; }
+.world-data-tabs button,.cycle-data-tabs button {
+  border:1px solid transparent;
+  border-radius:7px;
+  background:transparent;
+  color:var(--ink-secondary, #acbbb8);
+  padding:7px 10px;
+  font:inherit;
+  cursor:pointer
+}
+.world-data-tabs button[aria-selected="true"],.cycle-data-tabs button[aria-selected="true"] {
+  border-color:var(--edge-active, #3b625b);
+  background:var(--surface-selected, #12201e);
+  color:var(--ink, #d9f0e9)
+}
+.world-data-tabs button:focus-visible,.cycle-data-tabs button:focus-visible,.cycle:focus-visible {
+  outline:2px solid var(--focus-ring, #a8d9cf);
+  outline-offset:2px
+}
+.cycle { background:transparent; color:inherit; font:inherit; cursor:pointer; }
+#cycleDialog { width:min(720px,calc(100% - 24px)); height:auto; max-height:calc(100dvh - 24px); overflow:auto; color:var(--text); }
+#cycleDialog:not([open]) { display:none; }
+#cycleDialog::backdrop { background:#000b; backdrop-filter:blur(4px); }
+:root[data-appearance="light"] #cycleDialog::backdrop { background:#243a3470; }
+.cycle-data-tabs { margin:14px 0; }
+.cycle-data-content { overflow:auto; min-height:0; }
+.cycle-data-content .group-body { padding:0 4px; }
+@media(max-width:760px) {
+  .world-data-tabs button,.cycle-data-tabs button { min-height:44px; }
+}
+
 #appearanceDialog {
   width:min(390px,calc(100% - 24px));
   height:auto;
@@ -1899,7 +1930,7 @@ button {
 <body>
 <div class="app">
   <main class="world" id="world" aria-label="意识世界">
-    <div class="topline"><span>FZZL · 空无</span><span class="cycle" id="cycle">轮回 01</span></div>
+    <div class="topline"><span>FZZL · 空无</span><button type="button" class="cycle" id="cycle" aria-haspopup="dialog">轮回 01</button></div>
     <div class="cycle-notice" id="cycleNotice" hidden></div>
     <section class="goal-hud" id="goalHud" hidden aria-live="polite"><div class="goal-kicker">当前目标</div><div class="goal-main"><strong id="goalTitle"></strong><span id="goalValue"></span></div><p class="goal-detail" id="goalDetail"></p><div class="goal-meter"><i id="goalMeter"></i></div></section>
     <div class="empty-prompt" id="emptyPrompt" aria-label="触发第一次扰动"></div>
@@ -1918,20 +1949,21 @@ button {
   <aside class="aside">
     <div class="aside-head"><strong>世界数据</strong><div class="aside-tools"><button class="encyclopedia-open" id="openAppearance" type="button" aria-haspopup="dialog">外观</button><button class="encyclopedia-open" id="openEncyclopedia" type="button">知识百科</button><button class="reset" id="reset">重置试玩</button></div></div>
     <section class="group world-data-panel" aria-label="世界数据分类">
-      <div class="world-data-header"><select id="worldDataSelect" aria-label="选择世界数据分类"><option value="resource">资源仓库</option><option value="mind">思维网络</option><option value="story">本轮记忆</option><option value="life">载体与族群</option><option value="civil">文明与异界</option><option value="legacy">轮回遗产</option></select></div>
+      <div class="world-data-header"><div class="world-data-tabs" role="tablist" aria-label="世界数据分类"><button type="button" role="tab" data-sidebar-tab="resource" aria-controls="resourceRows">资源仓库</button><button type="button" role="tab" data-sidebar-tab="story" aria-controls="storyLog">本轮记忆</button></div></div>
       <div class="world-data-content" id="worldDataContent" tabindex="0" aria-label="当前分类内容，可滚动">
         <div class="group-body" id="resourceRows" data-world-view="resource"></div>
-        <div class="group-body" id="mindRows" data-world-view="mind" hidden></div>
         <div class="group-body story-log" id="storyLog" data-world-view="story" hidden></div>
-        <div class="group-body" id="lifeRows" data-world-view="life" hidden></div>
-        <div class="group-body" id="civilRows" data-world-view="civil" hidden></div>
-        <div class="group-body" id="legacyRows" data-world-view="legacy" hidden></div>
       </div>
     </section>
     <div class="side-note">点击名称查看简述；知识百科可以阅读完整效果。</div>
   </aside>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<dialog class="encyclopedia-dialog" id="cycleDialog" aria-labelledby="cycleDialogTitle">
+  <header><h2 id="cycleDialogTitle">轮回信息</h2><button type="button" class="encyclopedia-close" id="closeCycleDialog" aria-label="关闭轮回信息">×</button></header>
+  <div class="cycle-data-tabs" role="tablist" aria-label="轮回信息分类"><button type="button" role="tab" data-cycle-tab="mind" aria-controls="mindRows">思维网络</button><button type="button" role="tab" data-cycle-tab="life" aria-controls="lifeRows">载体与族群</button><button type="button" role="tab" data-cycle-tab="civil" aria-controls="civilRows">文明与异界</button><button type="button" role="tab" data-cycle-tab="legacy" aria-controls="legacyRows">轮回遗产</button></div>
+  <div class="cycle-data-content" id="cycleDataContent"><div class="group-body" id="mindRows" data-cycle-view="mind"></div><div class="group-body" id="lifeRows" data-cycle-view="life" hidden></div><div class="group-body" id="civilRows" data-cycle-view="civil" hidden></div><div class="group-body" id="legacyRows" data-cycle-view="legacy" hidden></div></div>
+</dialog>
 <section class="encyclopedia" id="offlineReport" hidden aria-label="离线成长报告"><div class="encyclopedia-backdrop"></div><div class="encyclopedia-dialog" role="dialog" aria-modal="true" aria-labelledby="offlineTitle"><header><div><span class="encyclopedia-kicker">轮回记录</span><h2 id="offlineTitle">欢迎回来</h2></div><p id="offlineTime"></p></header><article class="encyclopedia-article" id="offlineBody"></article><button type="button" class="tool-btn" id="acceptOffline">继续</button></div></section>
 <section class="encyclopedia" id="encyclopedia" hidden aria-label="知识百科"><div class="encyclopedia-backdrop" data-close-encyclopedia></div><div class="encyclopedia-dialog" role="dialog" aria-modal="true" aria-labelledby="encyclopediaTitle"><header><div><span class="encyclopedia-kicker">FZZL · 记录与机制</span><h2 id="encyclopediaTitle">知识百科</h2></div><button type="button" class="encyclopedia-close" data-close-encyclopedia aria-label="关闭百科">×</button></header><label class="encyclopedia-search"><span>检索词条</span><input id="encyclopediaSearch" type="search" placeholder="搜索升级、资源或概念"></label><div class="encyclopedia-layout"><nav id="encyclopediaEntries" aria-label="百科词条"></nav><article class="encyclopedia-article" id="encyclopediaArticle" aria-live="polite"><h3>选择一条词条</h3><p>这里会显示升级机制、资源用途与轮回设定的详细说明。</p></article></div></div></section>
 <dialog class="encyclopedia-dialog" id="appearanceDialog" aria-labelledby="appearanceTitle">
@@ -5333,21 +5365,25 @@ button {
       footer.append(next)
     }
   }
+  let cycleDataView = 'mind';
   function updateWorldDataView() {
-    const select = $('worldDataSelect'), life = !!s.species,
-          civil = !!(s.stageUnlocks.civilization && s.cycle >= 3);
-    if (!select) return;
-    for (const option of select.options) {
-      if (option.value === 'life') option.hidden = !life;
-      if (option.value === 'civil') option.hidden = !civil
-    }
-    const allowed =
-        ['resource', 'mind', 'story', 'legacy', ...(life ? ['life'] : []), ...(civil ? ['civil'] : [])];
-    if (!allowed.includes(s.worldDataView)) s.worldDataView = 'resource';
-    select.value = s.worldDataView;
+    if (!['resource', 'story'].includes(s.worldDataView)) s.worldDataView = 'resource';
+    document.querySelectorAll('[data-sidebar-tab]').forEach(button => {
+      button.setAttribute('aria-selected', String(button.dataset.sidebarTab === s.worldDataView));
+    });
     $('worldDataContent')
         .querySelectorAll('[data-world-view]')
         .forEach(panel => {panel.hidden = panel.dataset.worldView !== s.worldDataView});
+    const life = !!s.species, civil = !!(s.stageUnlocks.civilization && s.cycle >= 3);
+    if ((cycleDataView === 'life' && !life) || (cycleDataView === 'civil' && !civil)) cycleDataView = 'mind';
+    document.querySelectorAll('[data-cycle-tab]').forEach(button => {
+      const tab = button.dataset.cycleTab;
+      button.hidden = (tab === 'life' && !life) || (tab === 'civil' && !civil);
+      button.setAttribute('aria-selected', String(tab === cycleDataView));
+    });
+    $('cycleDataContent').querySelectorAll('[data-cycle-view]').forEach(panel => {
+      panel.hidden = panel.dataset.cycleView !== cycleDataView;
+    });
   }
   // 资源面板。根据当前阶段显示库存、容量和产出。
   function renderResources() {
@@ -6805,12 +6841,27 @@ button {
       // 当前页面仍可切换外观。
     }
   });
-  $('worldDataSelect').addEventListener('change', e => {
-    s.worldDataView = e.target.value;
-    updateWorldDataView();
-    $('worldDataContent').scrollTop = 0;
-    save()
+  document.querySelectorAll('[data-sidebar-tab]').forEach(button => {
+    button.addEventListener('click', () => {
+      s.worldDataView = button.dataset.sidebarTab;
+      updateWorldDataView();
+      $('worldDataContent').scrollTop = 0;
+      save()
+    });
   });
+  document.querySelectorAll('[data-cycle-tab]').forEach(button => {
+    button.addEventListener('click', () => {
+      cycleDataView = button.dataset.cycleTab;
+      updateWorldDataView();
+      $('cycleDataContent').scrollTop = 0;
+    });
+  });
+  $('cycle').addEventListener('click', () => {
+    $('cycleDialogTitle').textContent = $('cycle').textContent;
+    updateWorldDataView();
+    $('cycleDialog').showModal();
+  });
+  $('closeCycleDialog').addEventListener('click', () => $('cycleDialog').close());
   $('acceptOffline').addEventListener('click', () => $('offlineReport').hidden = true);
   $('emptyPrompt').addEventListener('click', wake);
   action.addEventListener('click', pressMain);
@@ -6836,7 +6887,7 @@ button {
   document.querySelectorAll('[data-close-encyclopedia]')
       .forEach(b => b.addEventListener('click', closeEncyclopedia));
   window.addEventListener('keydown', e => {
-    if (appearanceDialog.open) return;
+    if (appearanceDialog.open || $('cycleDialog').open) return;
     if (!$('offlineReport').hidden) {
       if (e.key === 'Escape') $('offlineReport').hidden = true;
       return
