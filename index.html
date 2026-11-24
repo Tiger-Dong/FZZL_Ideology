@@ -748,6 +748,15 @@ button {
 .resource-table .res-row {
   padding:8px 2px
 }
+.resource-table .res-row.resource-full {
+  background:var(--full-resource-bg, #19443966);
+  box-shadow:inset 3px 0 0 var(--full-resource-edge, #83c5ad);
+  padding-left:8px
+}
+:root[data-appearance="light"] .resource-table .res-row.resource-full {
+  --full-resource-bg:#cde4d8;
+  --full-resource-edge:#376d58
+}
 .resource-table .res-value {
   font-size:11px;
   text-align:right;
@@ -1679,7 +1688,11 @@ button {
 .aside>* {
   flex-shrink:0
 }
-.world-data-panel {
+.aside>.world-data-panel {
+  display:flex;
+  flex-direction:column;
+  flex:1 1 0;
+  min-height:0;
   overflow:hidden;
   border-color:transparent;
   border-radius:0;
@@ -1714,7 +1727,8 @@ button {
   cursor:pointer
 }
 .world-data-content {
-  max-height:min(60vh,680px);
+  flex:1 1 auto;
+  min-height:0;
   overflow-y:auto;
   overflow-x:hidden;
   overscroll-behavior:contain;
@@ -1724,6 +1738,11 @@ button {
 .world-data-content>.group-body {
   padding:10px 12px 12px
 }
+.world-data-content>#storyLog {
+  padding:10px 0 12px
+}
+#storyLog .story-log-entry { font-size:11px; }
+#storyLog .story-log-entry small { font-size:9px; }
 .world-data-content:focus-visible,.world-data-header select:focus-visible {
   outline:2px solid var(--focus-ring, #a8d9cf);
   outline-offset:-2px
@@ -1738,8 +1757,8 @@ button {
     overflow:visible
   }
   .world-data-content {
-    max-height:55vh;
-    max-height:55dvh;
+    max-height:70vh;
+    max-height:70dvh;
     -webkit-overflow-scrolling:touch
   }
   .world-data-header select {
@@ -1925,6 +1944,16 @@ button {
   --sample-ink:#27584d
 }
 #appearanceDialog form > .tool-btn { width:100%; }
+.resource-highlight-setting {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin:0 0 16px;
+  color:var(--ink-secondary, #bdcbc8);
+  font-size:13px;
+  cursor:pointer
+}
+.resource-highlight-setting input { accent-color:var(--meter-fill, #8dc7b9); }
 </style>
 </head>
 <body>
@@ -1973,6 +2002,7 @@ button {
       <label class="appearance-option"><span class="appearance-sample dark" aria-hidden="true"></span><input type="radio" name="appearance" value="dark" checked> 暗色</label>
       <label class="appearance-option"><span class="appearance-sample light" aria-hidden="true"></span><input type="radio" name="appearance" value="light"> 浅色</label>
     </fieldset>
+    <label class="resource-highlight-setting"><input type="checkbox" id="highlightFullResources" checked> 高亮已满的资源</label>
     <button class="tool-btn" type="submit">完成</button>
   </form>
 </dialog>
@@ -1980,6 +2010,13 @@ button {
 
 (() => {
   const KEY = 'fzzl_prototype_v03';
+  const FULL_HIGHLIGHT_KEY = 'fzzl_highlight_full_resources';
+  let highlightFullResources = true;
+  try {
+    highlightFullResources = localStorage.getItem(FULL_HIGHLIGHT_KEY) !== 'false';
+  } catch {
+    // 无法读取设置时保留默认高亮。
+  }
   const panelEncyclopedia = new Map();
   const fresh = () => ({
     discoveredUpgrades: {},
@@ -5484,7 +5521,7 @@ button {
                                              '';
       return `<button type="button" class="res-row ${
           s.network && id === 'disturbance' ? 'subordinate ' :
-                                              ''}${s.selectedResource === id ? 'selected' : ''}" data-res="${
+                                              ''}${!locked && cap !== null && cap > 0 && value >= cap && highlightFullResources ? 'resource-full ' : ''}${s.selectedResource === id ? 'selected' : ''}" data-res="${
           id}" ${locked ? 'disabled' : ''} aria-expanded="${
           s.selectedResource === id}"><span class="res-name">${name}</span><span class="res-value">${
           locked ? '—' :
@@ -6159,14 +6196,19 @@ button {
       }
     }
     let used = 0, waiting = false, distClock = 0, thoughtClock = 0, gainDist = 0, gainThoughts = 0, nodes = 0, nodeSpent = 0;
+    const blockedResources = new Set();
     const beforeThought = s.runThoughts, limit = Math.min(elapsed, OFFLINE_LIMIT);
     for (let i = 0; i < limit; i++) {
       used++;
-      gainThoughts += addThought(5 * (s.legacyBoosts.resourceFlow || 0));
+      const flow = 5 * (s.legacyBoosts.resourceFlow || 0);
+      const flowReceived = addThought(flow);
+      if (flowReceived < flow) blockedResources.add('念头');
+      gainThoughts += flowReceived;
       distClock++;
       while (distClock >= disturbanceInterval()) {
         distClock -= disturbanceInterval();
         const n = addDisturbance(growthYield());
+        if (n < whole(growthYield())) blockedResources.add('扰动');
         gainDist += n;
         gainThoughts += convertDisturbances()
       }
@@ -6174,6 +6216,7 @@ button {
       while (thoughtClock >= thoughtInterval()) {
         thoughtClock -= thoughtInterval();
         const n = addThought(thoughtYield());
+        if (n < whole(thoughtYield())) blockedResources.add('念头');
         gainThoughts += n
       }
       if (s.mindEvolutions.sprout) {
@@ -6181,6 +6224,7 @@ button {
         while (s.mindClock >= 30) {
           s.mindClock -= 30;
           const cost = nodeCost();
+          if (s.mind >= nodeCapacity() && s.thoughts >= cost) blockedResources.add('知识节点');
           if (synthesizeNode()) {
             nodes++;
             nodeSpent += cost;
@@ -6204,6 +6248,7 @@ button {
                 amount = Math.floor(remainder / 1000);
           s.raceResourceRemainder[rid] = remainder % 1000;
           const received = Math.min(amount, Math.max(0, raceCapacity(rid) - (s.raceResources[rid] || 0)));
+          if (amount > received) blockedResources.add(name);
           s.raceResources[rid] = (s.raceResources[rid] || 0) + received;
           if (received) resources.push({name, amount: received})
         }
@@ -6211,7 +6256,13 @@ button {
     s.savedAt = now;
     return {
       elapsed, used, waiting, paused: false, thoughts: gainThoughts, disturbances: gainDist, nodes, nodeSpent, resources,
-          capped: elapsed > OFFLINE_LIMIT
+          capped: elapsed > OFFLINE_LIMIT, blockedResources: [...blockedResources],
+          fullResources: [
+            ...(s.disturbances >= 1000 ? ['扰动'] : []),
+            ...(s.thoughts >= thoughtCapacity() ? ['念头'] : []),
+            ...(s.mindEvolutions.sprout && s.mind >= nodeCapacity() ? ['知识节点'] : []),
+            ...(s.species && s.worldview && (s.raceResources[worlds[s.worldview].currency] || 0) >= raceCapacity(worlds[s.worldview].currency) ? [raceResourceName(worlds[s.worldview].currency)] : [])
+          ]
     }
   }
   function showOfflineReport(report) {
@@ -6241,6 +6292,10 @@ button {
         addLine(`载体：${report.resources.map(x => `${x.amount} ${x.name}`).join('、')}。`);
     }
     if (report.waiting) addLine('生命载体选择已开放，等待选择期间思维资源继续累积。');
+    if (report.blockedResources?.length)
+      addLine(`离线期间${report.blockedResources.join('、')}达到库存上限，部分产出受限。`);
+    if (report.fullResources?.length)
+      addLine(`${report.fullResources.join('、')}已满，继续挂机将无法获得更多对应资源，可提高库存上限或使用资源。`);
     if (report.capped) addLine('离线结算上限为 8 小时。');
     $('offlineReport').hidden = false
   }
@@ -6825,6 +6880,8 @@ button {
   const appearanceDialog = $('appearanceDialog');
   const appearanceForm = appearanceDialog.querySelector('form');
   const appearanceOptions = appearanceForm.elements.appearance;
+  const fullHighlightInput = $('highlightFullResources');
+  fullHighlightInput.checked = highlightFullResources;
   const root = document.documentElement;
   appearanceOptions.value = root.dataset.appearance;
   if (!appearanceOptions.value) {
@@ -6832,7 +6889,13 @@ button {
     root.dataset.appearance = 'dark';
   }
   $('openAppearance').addEventListener('click', () => appearanceDialog.showModal());
-  appearanceForm.addEventListener('change', () => {
+  appearanceForm.addEventListener('change', event => {
+    if (event.target === fullHighlightInput) {
+      highlightFullResources = fullHighlightInput.checked;
+      try { localStorage.setItem(FULL_HIGHLIGHT_KEY, String(highlightFullResources)); } catch {}
+      renderResources();
+      return;
+    }
     const appearance = appearanceOptions.value;
     root.dataset.appearance = appearance;
     try {
