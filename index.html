@@ -1867,20 +1867,20 @@ button {
   .world-data-tabs button,.cycle-data-tabs button { min-height:44px; }
 }
 
-#appearanceDialog {
+#appearanceDialog, #guidePreference {
   width:min(390px,calc(100% - 24px));
   height:auto;
   max-height:calc(100dvh - 24px);
   overflow:auto;
   color:var(--text)
 }
-#appearanceDialog:not([open]) { display:none; }
-#appearanceDialog::backdrop {
+#appearanceDialog:not([open]), #guidePreference:not([open]) { display:none; }
+#appearanceDialog::backdrop, #guidePreference::backdrop {
   background:#000b;
   backdrop-filter:blur(4px)
 }
-:root[data-appearance="light"] #appearanceDialog::backdrop { background:#243a3470; }
-#appearanceDialog h2 { margin:0; }
+:root[data-appearance="light"] :is(#appearanceDialog, #guidePreference)::backdrop { background:#243a3470; }
+#appearanceDialog h2, #guidePreference h2 { margin:0; }
 .appearance-options {
   display:grid;
   grid-template-columns:repeat(2,minmax(0,1fr));
@@ -1954,6 +1954,38 @@ button {
   cursor:pointer
 }
 .resource-highlight-setting input { accent-color:var(--meter-fill, #8dc7b9); }
+.guide-actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.guide-actions button {
+  pointer-events:auto; min-height:32px; padding:3px 8px; border:1px solid var(--edge-subtle,#1b292d);
+  border-radius:6px; background:transparent; color:var(--ink-secondary,#bdcbc8); font:inherit; font-size:11px;
+  cursor:pointer;
+}
+.guide-actions button:focus-visible { outline:2px solid var(--meter-fill,#8dc7b9); outline-offset:2px; }
+.goal-detail { color:var(--ink-secondary,#bdcbc8); }
+.trial-readiness, .trial-steps { color:var(--ink-secondary,#bdcbc8); font-size:12px; line-height:1.5; }
+.trial-readiness { padding:0; margin:6px 0; list-style:none; }
+.trial-readiness li + li { margin-top:4px; }
+.trial-readiness button { display:block; margin:4px 0 8px; }
+.trial-plan { display:block; }
+.trial-steps { list-style:none; margin:8px 0 0; padding:0; }
+.trial-steps li {
+  display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between;
+  gap:4px 8px; padding:6px 0; border-top:1px solid var(--edge-subtle,#1b292d);
+}
+.trial-steps small { flex-basis:100%; }
+.cycle-summary { margin:12px auto 0; max-width:520px; text-align:left; font-size:13px; line-height:1.55; }
+.cycle-summary div {
+  display:grid; grid-template-columns:5em minmax(0,1fr); gap:8px;
+  padding:5px 0; border-top:1px solid var(--edge-subtle,#1b292d);
+}
+.cycle-summary dt { color:var(--ink-secondary,#bdcbc8); }
+.cycle-summary dd { margin:0; color:var(--ink,#dce9e4); overflow-wrap:anywhere; }
+.guide-preference-actions { display:flex; justify-content:flex-end; gap:8px; flex-wrap:wrap; }
+.story-log-entry details summary { cursor:pointer; margin-top:5px; }
+@media(max-width:760px) {
+  .cycle-summary { font-size:12px; }
+  .guide-actions button, .trial-steps button { min-height:36px; }
+}
 </style>
 </head>
 <body>
@@ -1961,9 +1993,18 @@ button {
   <main class="world" id="world" aria-label="意识世界">
     <div class="topline"><span>FZZL · 空无</span><button type="button" class="cycle" id="cycle" aria-haspopup="dialog">轮回 01</button></div>
     <div class="cycle-notice" id="cycleNotice" hidden></div>
-    <section class="goal-hud" id="goalHud" hidden aria-live="polite"><div class="goal-kicker">当前目标</div><div class="goal-main"><strong id="goalTitle"></strong><span id="goalValue"></span></div><p class="goal-detail" id="goalDetail"></p><div class="goal-meter"><i id="goalMeter"></i></div></section>
+    <section class="goal-hud" id="goalHud" hidden aria-label="当前进展">
+      <div class="goal-kicker">当前进展</div>
+      <div class="goal-main"><strong id="goalTitle"></strong><span id="goalValue"></span></div>
+      <p class="goal-detail" id="goalDetail" aria-live="polite"></p>
+      <div class="goal-meter" aria-hidden="true"><i id="goalMeter"></i></div>
+      <div class="guide-actions">
+        <button type="button" id="guideOpenModule" hidden></button>
+        <button type="button" id="guideToggle" aria-controls="goalDetail" aria-expanded="true">收起提示</button>
+      </div>
+    </section>
     <div class="empty-prompt" id="emptyPrompt" aria-label="触发第一次扰动"></div>
-    <div class="scene-stack" id="sceneStack"><div class="scene-copy" id="sceneCopy" hidden><div class="caption" id="caption"></div><div class="story" id="story"></div><div class="hint" id="hint"></div></div>
+    <div class="scene-stack" id="sceneStack"><div class="scene-copy" id="sceneCopy" hidden><div class="caption" id="caption"></div><div class="story" id="story"></div><div class="hint" id="hint"></div><dl class="cycle-summary" id="cycleSummary" hidden></dl></div>
     <button class="main-action blank" id="mainAction" hidden aria-label="空白符号"></button></div>
     <div class="choices" id="choices" hidden></div>
     <div class="left-progress">
@@ -1976,7 +2017,7 @@ button {
     </div>
   </main>
   <aside class="aside">
-    <div class="aside-head"><strong>世界数据</strong><div class="aside-tools"><button class="encyclopedia-open" id="openAppearance" type="button" aria-haspopup="dialog">外观</button><button class="encyclopedia-open" id="openEncyclopedia" type="button">知识百科</button><button class="reset" id="reset">重置试玩</button></div></div>
+    <div class="aside-head"><strong>世界数据</strong><div class="aside-tools"><button class="encyclopedia-open" id="openAppearance" type="button" aria-haspopup="dialog">设置</button><button class="encyclopedia-open" id="openEncyclopedia" type="button">知识百科</button><button class="reset" id="reset">重置试玩</button></div></div>
     <section class="group world-data-panel" aria-label="世界数据分类">
       <div class="world-data-header"><div class="world-data-tabs" role="tablist" aria-label="世界数据分类"><button type="button" role="tab" data-sidebar-tab="resource" aria-controls="resourceRows">资源仓库</button><button type="button" role="tab" data-sidebar-tab="story" aria-controls="storyLog">本轮记忆</button></div></div>
       <div class="world-data-content" id="worldDataContent" tabindex="0" aria-label="当前分类内容，可滚动">
@@ -1996,14 +2037,23 @@ button {
 <section class="encyclopedia" id="offlineReport" hidden aria-label="离线成长报告"><div class="encyclopedia-backdrop"></div><div class="encyclopedia-dialog" role="dialog" aria-modal="true" aria-labelledby="offlineTitle"><header><div><span class="encyclopedia-kicker">轮回记录</span><h2 id="offlineTitle">欢迎回来</h2></div><p id="offlineTime"></p></header><article class="encyclopedia-article" id="offlineBody"></article><button type="button" class="tool-btn" id="acceptOffline">继续</button></div></section>
 <section class="encyclopedia" id="encyclopedia" hidden aria-label="知识百科"><div class="encyclopedia-backdrop" data-close-encyclopedia></div><div class="encyclopedia-dialog" role="dialog" aria-modal="true" aria-labelledby="encyclopediaTitle"><header><div><span class="encyclopedia-kicker">FZZL · 记录与机制</span><h2 id="encyclopediaTitle">知识百科</h2></div><button type="button" class="encyclopedia-close" data-close-encyclopedia aria-label="关闭百科">×</button></header><label class="encyclopedia-search"><span>检索词条</span><input id="encyclopediaSearch" type="search" placeholder="搜索升级、资源或概念"></label><div class="encyclopedia-layout"><nav id="encyclopediaEntries" aria-label="百科词条"></nav><article class="encyclopedia-article" id="encyclopediaArticle" aria-live="polite"><h3>选择一条词条</h3><p>这里会显示升级机制、资源用途与轮回设定的详细说明。</p></article></div></div></section>
 <dialog class="encyclopedia-dialog" id="appearanceDialog" aria-labelledby="appearanceTitle">
-  <header><h2 id="appearanceTitle">外观</h2></header>
+  <header><h2 id="appearanceTitle">设置</h2></header>
   <form method="dialog">
     <fieldset class="appearance-options" aria-label="界面配色">
       <label class="appearance-option"><span class="appearance-sample dark" aria-hidden="true"></span><input type="radio" name="appearance" value="dark" checked> 暗色</label>
       <label class="appearance-option"><span class="appearance-sample light" aria-hidden="true"></span><input type="radio" name="appearance" value="light"> 浅色</label>
     </fieldset>
     <label class="resource-highlight-setting"><input type="checkbox" id="highlightFullResources" checked> 高亮已满的资源</label>
+    <label class="resource-highlight-setting"><input type="checkbox" id="showGuideHints" checked> 自动显示引导提示</label>
     <button class="tool-btn" type="submit">完成</button>
+  </form>
+</dialog>
+<dialog class="encyclopedia-dialog" id="guidePreference" aria-labelledby="guidePreferenceTitle">
+  <header><h2 id="guidePreferenceTitle">再次醒来</h2></header>
+  <p>你已经走过一次轮回。下一次醒来时，还愿意看见这些指路的提示吗？</p>
+  <form method="dialog" class="guide-preference-actions">
+    <button type="submit" class="tool-btn" value="hide">减少提示</button>
+    <button type="submit" class="tool-btn" value="show" autofocus>保留提示</button>
   </form>
 </dialog>
 <script>
@@ -2019,6 +2069,8 @@ button {
   }
   const panelEncyclopedia = new Map();
   const fresh = () => ({
+    guideHints: true,
+    dismissedGuide: '',
     discoveredUpgrades: {},
     discoveredResources: {},
     rulesVersion: 16,
@@ -2610,7 +2662,7 @@ button {
         category: '思维升级',
         summary: '让每次扰动与念头增长得更多。',
         details:
-            ['累计 100 念头后开放，每级使每次扰动和念头生成额外增加 5。', '成长量改变单次产量；与思绪流动的速度提升相互独立。']
+            ['累计 100 念头后开放，每级使每次自动生成的扰动和念头额外增加 5。', '不影响主动点击获得的念头。']
       },
       network: {
         name: '灵感',
@@ -2862,6 +2914,19 @@ button {
     }
     if (s.mode === 'summary')
       for (const choice of stageChoices()) if (!choice.locked) entries.push(encyclopediaEntryFor(choice.id));
+    if (s.species || s.cycleHistory.length) entries.push({
+      id: 'first-trial-guide',
+      name: '第一次灾变',
+      category: '引导',
+      summary: '准备完成后，可主动迎接考验，也可以等倒计时结束。',
+      details: [
+        '初步信息收集免费，开始后进入实时倒计时。有族群知识时，可在本场花 1 知识深入观测，普通情报提高一档，最多到「了解」。',
+        '归纳整理、防护预案、资源储备是单独的可选准备。归纳整理用于情报和解析，防护预案用于防护和生存准备，资源储备用于生存。费用在购买时按已起草的最高方案等级计算，未起草时按 0 级。',
+        '观测后的征兆可以帮助你选择方向。首份方案花 200 念头起草，后续按 1.5 倍递增并向上取整。逐项落实另花载体资源，每项贡献总完成度的三分之一。',
+        '首轮在「发展探索」完成载体的专属准备，再结合知识节点和贴合征兆的方案获得基础幸存。人类用工具完成第三项，动物先辨认方向再落实三项，植物用深根补足前两项之外的生存需要。',
+        '资源、知识和延续印记是不同的保全选择。结果和获得的回响会进入轮回记录。'
+      ]
+    });
     // 已呈现过的卡片详情可从卡片入口继续查阅。
     entries.push(...panelEncyclopedia.values());
     let hint;
@@ -3176,6 +3241,51 @@ button {
     return worldTrialHints[s.worldview]?.[id] || trialDirections[id]
   }
   const trialWorldFocus = {magic: 'protect', cultivation: 'reserve', technology: 'study'};
+  const trialDirectionNames = {protect: '防护', study: '观察', reserve: '储备'};
+  const trialIntelNames = ['未知', '推测', '轮廓', '了解', '了然于心'];
+  const firstTrialClues = {
+    magic: '魔力沿边缘聚集，薄弱处先开始震动。或许可以在那里引导或阻隔冲击。',
+    cultivation: '你能感到灵气比先前稀薄，而且补充得越来越慢。或许可以先留下一些储备。',
+    technology: '同样的偏差在不同地点重复出现。再观察几次，或许能找出变化的规律。'
+  };
+  const firstCarrierRoutes = {
+    human: {
+      name: '制作应变工具', cost: {carrier: 260},
+      intro: '把观察写成一套做法，再用手边的材料做出可调整的工具。',
+      use: '起草贴合征兆的方案后，落实前两项，第三项使用应变工具。',
+      outcome: '你把事先做好的工具装到方案上，补齐了最后一道准备。',
+      steps: [1, 2]
+    },
+    animal: {
+      name: '练习循迹避险', cost: {carrier: 200},
+      intro: '反复辨认风向、气味和地面变化，找出出事时可以绕开的路径。',
+      use: '初探后会辨出适合的方案方向。仍需自行选择方向，并落实三项准备。',
+      outcome: '你辨认出了不稳定的区域，沿着事先熟记的路线绕开了冲击。',
+      steps: [1, 2, 3]
+    },
+    plant: {
+      name: '向稳定土层扎根', cost: {carrier: 260},
+      intro: '让一部分根深入较稳定的土层，在表层环境变化前积蓄水分与养分。',
+      use: '贴合征兆的方案落实前两项即可。深根在危机中提供生存缓冲，第三项可继续落实。',
+      outcome: '表层失去稳定时，深根仍从较稳定的土层取得水分与养分，撑过了最初的冲击。',
+      steps: [1, 2]
+    }
+  };
+  function currentFirstCarrierRoute() {
+    if (s.cycle !== 1 || (s.trialPlan.started && !s.trialPlan.firstRouteRules)) return null;
+    return firstCarrierRoutes[s.species] || null;
+  }
+  function learnFirstCarrierRoute() {
+    const route = currentFirstCarrierRoute(), trial = s.trialPlan;
+    if (!route || s.mode !== 'world' || s.crisisResult || trialExpired() || trial.carrierPractice ||
+        !payTrialCost(route.cost)) return false;
+    trial.carrierPractice = {species: s.species, ...route.cost};
+    addLifeMoment(`first-route-${s.species}`, route.intro, `你还记得灾变来临前，曾经完成「${route.name}」。`);
+    logEvent(`${route.name}：消耗 ${trialCostText(route.cost)}。${route.use}`);
+    render();
+    save();
+    return true;
+  }
   function detectorName() {
     return {human: '观测', animal: '本能感应', plant: '环境感知'}[s.species] || '探测'
   }
@@ -3192,16 +3302,56 @@ button {
   function trialExpired(now = Date.now()) {
     return !!(s.trialPlan?.started && !s.crisisResult && s.trialPlan.deadline && now >= s.trialPlan.deadline)
   }
+  function trialPreparationOpen() {
+    return s.mode === 'world' && !!s.species && !!s.worldview && s.trialPlan.started && !s.crisisResult && !trialExpired();
+  }
+  function trialCostItems(cost, missing = false) {
+    const currency = currentRaceCurrency();
+    return [
+      [cost.thought, s.thoughts, '念头'],
+      [cost.carrier, s.raceResources[currency] || 0, raceResourceName(currency)],
+      [cost.knowledge, s.society?.knowledge || 0, '知识']
+    ].map(([amount = 0, balance, name]) => [missing ? Math.max(0, amount - balance) : amount, name])
+        .filter(([amount]) => amount > 0).map(([amount, name]) => `${amount} ${name}`);
+  }
+  function trialCostText(cost) {
+    return trialCostItems(cost).join(' + ') || '免费';
+  }
+  function trialShortfall(cost) {
+    const missing = trialCostItems(cost, true);
+    return missing.length ? `还差 ${missing.join(' + ')}。` : '';
+  }
+  function payTrialCost(cost) {
+    if (trialShortfall(cost)) return false;
+    if (cost.thought) s.thoughts -= cost.thought;
+    if (cost.carrier) s.raceResources[currentRaceCurrency()] -= cost.carrier;
+    if (cost.knowledge) s.society.knowledge -= cost.knowledge;
+    return true;
+  }
   function startDetection() {
-    if (s.mode !== 'world' || !s.species || s.crisisResult || s.trialPlan.started) return;
+    if (s.mode !== 'world' || !s.species || s.crisisResult || s.trialPlan.started) return false;
+    if (s.cycle === 1) s.trialPlan.firstRouteRules = true;
     s.trialPlan.started = true;
     s.trialPlan.deadline = Date.now() + trialMinutes() * 60000;
-    logEvent(`${detectorName()}开始：剩余准备时间 ${trialMinutes()} 分钟。`);
+    logEvent(`${detectorName()}开始，免费获得初步征兆。剩余 ${trialMinutes()} 分钟。`);
     render();
-    save()
+    save();
+    return true;
+  }
+  const deepObservationCost = {knowledge: 1};
+  function deepenObservation() {
+    const plan = s.trialPlan;
+    if (!trialPreparationOpen() || plan.observationPaid || intelTier() >= 3 || !payTrialCost(deepObservationCost))
+      return false;
+    const before = intelTier();
+    plan.observationPaid = deepObservationCost.knowledge;
+    logEvent(`深入${detectorName()}：消耗 ${trialCostText(deepObservationCost)}，情报由「${trialIntelNames[before]}」提升为「${trialIntelNames[intelTier()]}」。`);
+    render();
+    save();
+    return true;
   }
   function chooseTrialDirection(id) {
-    if (s.trialPlan.started && !trialExpired() && trialDirections[id]) {
+    if (trialPreparationOpen() && Object.hasOwn(trialDirections, id)) {
       s.trialPlan.direction = id;
       render();
       save()
@@ -3220,33 +3370,29 @@ button {
   function planCost() {
     return Math.ceil(200 * Math.pow(1.5, s.trialPlan.plans.length))
   }
+  function nextTrialPlanQuality() {
+    return Math.min(planQualityCap(), 1 + mindPlanRank() + Math.floor(raceUpgradeLevels() / 30));
+  }
   function draftTrialPlan() {
     const t = s.trialPlan;
-    if (!t.started || trialExpired() || !t.direction || t.plans.length >= planLimit() ||
-        s.thoughts < planCost())
-      return;
-    const cost = planCost(), attempt = t.plans.length + 1, base = Math.min(4, 1 + mindPlanRank()),
-          floor = Math.min(5, base + Math.floor((attempt - 1) / 2)), roll = Math.random(),
-          quality = Math.min(
-              5,
-              Math.max(
-                  floor,
-                  base +
-                      (roll < .15     ? 2 :
-                           roll < .50 ? 1 :
-                                        0)));
-    s.thoughts -= cost;
+    const cost = planCost();
+    if (!trialPreparationOpen() || !Object.hasOwn(trialDirections, t.direction) ||
+        t.plans.length >= planLimit() || !payTrialCost({thought: cost})) return false;
+    const quality = nextTrialPlanQuality();
     t.plans.push({
       direction: t.direction,
       directionLabel: trialHint(t.direction).label,
       quality,
       cost,
+      steps: [],
+      stepCosts: {},
       route: 0,
       applied: false
     });
-    logEvent(`起草第 ${attempt} 份方案，消耗 ${cost} 念头，品质 ${quality}。`);
+    logEvent(`起草第 ${t.plans.length} 份${trialDirectionNames[t.direction]}方案，消耗 ${cost} 念头，等级 ${quality}。`);
     render();
-    save()
+    save();
+    return true;
   }
   function trialRouteName(direction, route) {
     const names = {
@@ -3268,28 +3414,50 @@ button {
     };
     return names[s.species]?.[direction]?.[route - 1] || ['基础', '稳固', '精密'][route - 1]
   }
-  function implementTrialPlan(i, step) {
+  function trialPlanSteps(plan) {
+    return plan.steps || (plan.applied ? [1, 2, 3] : []);
+  }
+  function canUseFirstTrialTool(plan) {
+    return currentFirstCarrierRoute() && s.species === 'human' && s.trialPlan.carrierPractice?.species === 'human' &&
+        plan.direction === trialWorldFocus[s.worldview] && !s.trialPlan.plans.some(item => item.firstTool);
+  }
+  function implementTrialPlan(i, step, useTool = false) {
     const t = s.trialPlan, p = t.plans[i];
-    if (!p || !t.started || trialExpired() || ![1, 2, 3].includes(step)) return;
-    p.steps = p.steps || (p.applied ? [1, 2, 3] : []);
-    if (p.steps.includes(step)) return;
-    const cost = Math.ceil([0, 12, 30, 60][step] * (intelTier() === 4 ? .8 : 1)), c = currentRaceCurrency();
-    if (s.raceResources[c] < cost) return;
-    s.raceResources[c] -= cost;
-    p.steps.push(step);
+    if (!p || !trialPreparationOpen() || ![1, 2, 3].includes(step)) return false;
+    const steps = trialPlanSteps(p), done = steps.includes(step);
+    const cost = useTool ? {} : {carrier: planStepCost(step)};
+    if (useTool ? step !== 3 || !canUseFirstTrialTool(p) : done || !payTrialCost(cost)) return false;
+    if (useTool) p.firstTool = true;
+    if (!done) {
+      p.stepCosts = {...p.stepCosts, [step]: cost.carrier || 0};
+      p.steps = [...steps, step];
+    }
+    p.steps = trialPlanSteps(p);
     p.completion = p.steps.length / 3;
     p.route = p.steps.length;
     p.applied = p.steps.length > 0;
     p.routeName = '落实 ' + Math.round(p.completion * 100) + '%';
+    const action = useTool ? `使用应变工具${done ? '加固' : '完成'}${trialRouteName(p.direction, step)}，未追加费用` :
+        `落实了${trialRouteName(p.direction, step)}，消耗 ${trialCostText(cost)}`;
+    logEvent(`${action}。第 ${i + 1} 份方案已完成 ${p.steps.length}/3 项。`);
     render();
-    save()
+    save();
+    return true;
+  }
+  function planStepCost(step) {
+    return Math.ceil([0, 12, 30, 60][step] * (intelTier() === 4 ? .8 : 1))
+  }
+  function trialPlanCompletion(plan) {
+    return plan.completion ?? (plan.applied ? 1 : 0)
+  }
+  function planMatch(direction) {
+    return direction === trialWorldFocus[s.worldview] ? 1 : .5;
+  }
+  function appliedPlanStrength(plan) {
+    return plan.quality * trialPlanCompletion(plan) * planMatch(plan.direction);
   }
   function trialPlanStrength() {
-    return s.trialPlan.plans.reduce(
-        (n, p) => n +
-            p.quality * (p.completion ?? (p.applied ? 1 : 0)) *
-                (p.direction === trialWorldFocus[s.worldview] ? 1 : .5),
-        0);
+    return s.trialPlan.plans.reduce((n, plan) => n + appliedPlanStrength(plan), 0);
   }
   function selectTrialKeep(id) {
     if (!s.trialPlan.started || trialExpired() || !['resources', 'knowledge', 'tribe'].includes(id)) return;
@@ -3309,61 +3477,171 @@ button {
     resolveTrial(id);
     return true
   }
+  function firstKnowledgeCost() {
+    return {thought: nodeCost() + (s.mindEvolutions.sprout ? 0 : mindEvolutionDef('sprout').cost)};
+  }
   function trialPanel(list) {
-    const t = s.trialPlan;
+    const t = s.trialPlan, currency = currentRaceCurrency();
+    const resource = raceResourceName(currency), stock = s.raceResources[currency] || 0;
+    const intel = intelTier(), canPrepare = !t.started || trialPreparationOpen();
     const h = document.createElement('p');
     h.className = 'upgrade-notice';
     h.textContent = t.started ?
-        `剩余 ${trialClock()} · 情报：${['未知', '推测', '轮廓', '了解', '了然于心'][intelTier()]} · 方案 ${
+        `剩余 ${trialClock()} · 情报：${trialIntelNames[intel]} · 方案 ${
             t.plans.length}/${planLimit()} · 级别上限 ${planQualityCap()}` :
-        '危险正在靠近。主动探查并筹备。';
+        '世界出现了一些变化。你还可以继续成长，等准备好再观察。';
     list.append(h);
+    const first = s.cycle === 1 ? firstTrialPreparation() : null;
+    if (first) {
+      const carrier = carrierTrialReadiness(), node = firstKnowledgeCost();
+      const checklist = document.createElement('ul');
+      checklist.className = 'trial-readiness';
+      upgradeHeading(list, '首轮基础幸存');
+      const rows = [
+        [first.node, first.node ? '已形成至少 1 个知识节点。' :
+          `${s.mindEvolutions.sprout ? '等待自动合成第一个知识节点' : '解锁思维萌芽并形成第一个知识节点'}，本步需 ${trialCostText(node)}。${trialShortfall(node)}`, 'thought', '查看思维'],
+        first.route ? [first.trained, `${first.route.name}。${first.trained ? '' :
+          `本步需 ${trialCostText(first.route.cost)}。${trialShortfall(first.route.cost)}`}`, 'explore', '查看发展探索'] :
+          [carrier.body, `提升${carrier.names.join('或')}，任一项到 1 级。`, 'species', '查看载体'],
+        [first.plan, `${t.started ? '' : '倒计时开始后，'}${first.route?.use || '根据征兆选择方向，并落实该方案的三项准备。'}`]
+      ];
+      for (const [ready, text, tab, label] of rows) {
+        const row = document.createElement('li');
+        row.textContent = `${ready ? '已具备' : '待完成'} · ${text}`;
+        if (!ready && tab) {
+          const link = document.createElement('button');
+          link.type = 'button';
+          link.className = 'tool-btn';
+          link.dataset.trialControl = `readiness-${tab}`;
+          link.textContent = label;
+          link.onclick = () => openUpgradeTab(tab);
+          row.append(link);
+        }
+        checklist.append(row)
+      }
+      list.append(checklist)
+    }
+    upgradeHeading(list, '信息收集');
     if (!t.started) {
+      const basicPlanCost = {thought: planCost(), carrier: (first?.route?.steps || [1, 2, 3])
+        .reduce((n, step) => n + planStepCost(step), 0)};
+      const budget = first?.route ? {
+        thought: basicPlanCost.thought + (first.node ? 0 : firstKnowledgeCost().thought),
+        carrier: basicPlanCost.carrier + (first.trained ? 0 : first.route.cost.carrier)
+      } : basicPlanCost;
       uiCard(
-          list, 'detect', '信息收集', '开始探测和考验倒计时。', `${trialMinutes()} 分钟`, '开始', true,
-          startDetection);
+          list, 'detect', `初步${detectorName()}`,
+          `免费取得征兆，开放方案与灾前准备，并开始 ${trialMinutes()} 分钟倒计时。${
+            first?.route && (!first.node || !first.trained) ? '准备未齐时也可以开始，倒计时仍会照常推进。' : ''}`,
+          `倒计时中需为首份方案预留 ${trialCostText(basicPlanCost)}。${first?.route ?
+            `加上待完成的准备，共需 ${trialCostText(budget)}。${trialShortfall(budget)}` : ''}`,
+          '开始信息收集 · 免费', true, startDetection);
       return
     }
+    const clue = document.createElement('p');
+    clue.className = 'upgrade-notice';
+    const knownDirection = first?.trained && s.species === 'animal' ?
+        `循迹辨险：你已辨出较稳定的绕行路线，建议将「${trialDirectionNames[trialWorldFocus[s.worldview]]}」定为方案方向。` : '';
+    clue.textContent = [firstTrialClues[s.worldview], ...crisisInfo().clues.slice(0, [0, 1, 2, 2, 3][intel]), knownDirection].filter(Boolean).join(' ');
+    list.append(clue);
+    if ((s.society?.knowledge || 0) > 0 || s.stageUnlocks.tribe || t.observationPaid) {
+      const status = t.observationPaid ? `已消耗 ${t.observationPaid} 知识；本场情报提高 1 档，最多到「了解」。` :
+          intel >= 3 ? '普通情报已达上限。' :
+          `情报 ${trialIntelNames[intel]} → ${trialIntelNames[intel + 1]}。 ${trialShortfall(deepObservationCost)}`;
+      uiCard(list, 'detect-deep', `深入${detectorName()}`, '使用族群知识补足本场情报。', status,
+          t.observationPaid ? '已完成' : `观测 · ${trialCostText(deepObservationCost)}`,
+          canPrepare && !t.observationPaid && intel < 3 && !trialShortfall(deepObservationCost), deepenObservation);
+    }
+    upgradeHeading(list, '制定方案');
     for (const id of Object.keys(trialDirections))
       uiCard(
-          list, 'direction-' + id, trialHint(id).label, '选择下一份方案的方向。',
-          t.direction === id ? '已选择' : '每份方案独立保存方向', '选择', true,
+          list, 'direction-' + id, `${trialDirectionNames[id]} · ${trialHint(id).label}`, trialHint(id).desc,
+          t.direction === id ? '用于下一份方案' : '', t.direction === id ? '已选择' : '选择', t.direction !== id,
           () => chooseTrialDirection(id));
+    const draftCost = {thought: planCost()}, draftShortfall = trialShortfall(draftCost);
+    const draftStatus = t.plans.length >= planLimit() ? '已达到当前方案数量上限。' :
+        !t.direction ? '选择一个应对方向后即可起草。' :
+        draftShortfall || `预计生成等级 ${nextTrialPlanQuality()} 的${trialDirectionNames[t.direction]}方案。`;
     uiCard(
-        list, 'draft', '方案制作', '在情报上限内平衡广度和深度。', `已有 ${t.plans.length} 份`,
-        `起草 · ${planCost()} 念头`,
-        !!t.direction && t.plans.length < planLimit() && s.thoughts >= planCost(), draftTrialPlan);
-    t.plans.forEach((p, i) => {
-      for (let j = 1; j <= 3; j++) {
-        const done = (p.steps || (p.applied ? [1, 2, 3] : [])).includes(j);
-        uiCard(
-            list, 'plan-' + i + '-' + j, `方案 ${i + 1} · ${trialRouteName(p.direction, j)}`,
-            '逐项落实筹备清单。',
-            `等级 ${p.quality} · 完成 ${Math.round((p.completion ?? (p.applied ? 1 : 0)) * 100)}%`,
-            done ? '已完成' : `落实 · ${Math.ceil([0, 12, 30, 60][j] * (intelTier() === 4 ? .8 : 1))} 资源`,
-            !done, () => implementTrialPlan(i, j))
+        list, 'draft', '方案制作', '用念头把方向写成方案。落实后的部分才会帮助你应对灾变。', draftStatus,
+        `起草 · ${trialCostText(draftCost)}`,
+        canPrepare && !!t.direction && t.plans.length < planLimit() && !draftShortfall, draftTrialPlan);
+    if (t.plans.length) upgradeHeading(list, '逐项落实');
+    t.plans.forEach((plan, index) => {
+      const card = document.createElement('article'), title = document.createElement('strong');
+      const progress = document.createElement('p'), steps = document.createElement('ul');
+      card.className = 'upgrade-card trial-plan';
+      steps.className = 'trial-steps';
+      title.textContent = `方案 ${index + 1} · ${trialDirectionNames[plan.direction] || '筹备'}`;
+      progress.textContent = `等级 ${plan.quality} · 已落实 ${Math.round(trialPlanCompletion(plan) * 3)} / 3 项`;
+      for (const step of [1, 2, 3]) {
+        const row = document.createElement('li'), name = document.createElement('span');
+        const button = document.createElement('button'), useTool = step === 3 && canUseFirstTrialTool(plan);
+        const cost = useTool ? {} : {carrier: planStepCost(step)};
+        const shortfall = trialShortfall(cost), paid = plan.stepCosts?.[step];
+        const done = trialPlanSteps(plan).includes(step);
+        name.textContent = trialRouteName(plan.direction, step);
+        button.type = 'button';
+        button.dataset.trialControl = `plan-${index}-${step}`;
+        button.textContent = useTool ? '使用应变工具 · 免费' : step === 3 && plan.firstTool ? '已使用应变工具' :
+          done ? (paid ? `已落实 · ${paid} ${resource}` : '已落实') : `落实 · ${trialCostText(cost)}`;
+        button.disabled = (done && !useTool) || !canPrepare || !!shortfall;
+        button.onclick = () => implementTrialPlan(index, step, !!useTool);
+        row.append(name, button);
+        if (!done && shortfall) {
+          const note = document.createElement('small');
+          note.textContent = shortfall;
+          row.append(note)
+        }
+        steps.append(row)
       }
+      card.append(title, progress, steps);
+      list.append(card)
     });
-    for (const id of ['resources', 'knowledge', 'tribe'])
+    upgradeHeading(list, '灾前准备 · 可选');
+    for (const action of crisisActions()) {
+      const paid = s.crisisPrepPaid?.[action.id], done = s.crisisPrep.includes(action.id);
+      const status = done ? (paid && typeof paid === 'object' ?
+          `已投入 ${trialCostText(paid)}（计费等级 ${paid.level}）。 ${paid.intelGain ? '购买时情报提高 1 档。' : ''}` :
+          '此前已完成这项准备。') :
+          `按已起草最高等级 ${action.cost.level} 计费。 ${trialShortfall(action.cost)}`;
+      uiCard(list, `prep-${action.id}`, action.name, action.desc, status,
+          done ? '已完成' : `准备 · ${trialCostText(action.cost)}`,
+          canPrepare && !done && !trialShortfall(action.cost), () => prepareCrisis(action.id), [action.formula]);
+    }
+    upgradeHeading(list, '灾变后优先保全');
+    for (const option of trialOptions().filter(x => ['resources', 'knowledge', 'tribe'].includes(x.id))) {
+      const selected = t.keep === option.id;
+      const shortfall = stock < option.cost ? `还差 ${option.cost - stock} ${resource}` : '';
       uiCard(
-          list, 'keep-' + id, {resources: '资源优先', knowledge: '知识永存', tribe: '族群不灭'}[id],
-          '预设考验的保全重点。', t.keep === id ? '已选定' : '待选择', '选择', true,
-          () => selectTrialKeep(id))
+          list, 'keep-' + option.id, option.name, option.desc,
+          [selected ? '当前预案' : '', shortfall].filter(Boolean).join(' · '),
+          selected ? '已选定' : '优先保全', !selected, () => selectTrialKeep(option.id))
+    }
+    const keepNote = document.createElement('p');
+    keepNote.className = 'upgrade-notice';
+    keepNote.textContent = '可以继续筹备，也可以提前迎接考验。灾变到来时，若余额不够支付所选的保全方式，将改为保存资源。';
+    list.append(keepNote)
   }
   function crisisActions() {
-    const n = raceResourceName(worlds[s.worldview].currency), names = {
+    const names = {
       human: ['制作防护工具', '整理观测记录', '储备生存物资'],
       animal: ['磨练避险本能', '追踪危险迹象', '储备食物与水'],
       plant: ['加深防护根系', '感知环境变化', '储存水分养分']
     }[s.species];
+    const level = s.trialPlan.plans.reduce((highest, plan) => Math.max(highest, plan.quality), 0);
+    const study = 500 + 200 * level, protect = 500 + 100 * level, reserve = 500 + 300 * level;
     return [
-      {id: 'protect', name: names[0], desc: `消耗 ${crisisPrepCost('protect')} ${n}，为抵御危机准备方法。`},
-      {id: 'study', name: names[1], desc: `消耗 ${crisisPrepCost('study')} ${n}，为解析危机留下观察记录。`}, {
-        id: 'reserve',
-        name: names[2],
-        desc: `消耗 ${crisisPrepCost('reserve')} ${n}，为危机中的存活积累储备。`
-      }
-    ]
+      {id: 'study', name: `归纳整理 · ${names[1]}`, desc: '普通情报提高一档，最多到「了解」；记录可用于灾后解析。',
+        cost: {level, thought: Math.ceil(study * (raceEvolutionUnlocked('technology-sensor') ? .5 : 1))},
+        formula: '念头费用为 500 + 200 × 计费等级；环境监测减半。'},
+      {id: 'protect', name: `防护预案 · ${names[0]}`, desc: '直接补足防护与生存准备；仍需载体和思维能够应对。',
+        cost: {level, thought: protect, carrier: Math.ceil(protect * (raceEvolutionUnlocked('creativity') ? .5 : 1))},
+        formula: '念头与载体资源分别支付 500 + 100 × 计费等级；创造性开发将载体资源一侧减半。'},
+      {id: 'reserve', name: `资源储备 · ${names[2]}`, desc: '补足生存准备；投入计入本场应对。',
+        cost: {level, carrier: Math.ceil(reserve * (raceEvolutionUnlocked('carbon') ? .5 : 1))},
+        formula: '载体资源费用为 500 + 300 × 计费等级；二氧化碳合成减半。'}
+    ];
   }
   // 载体经历与成长叙事
   const lifeScenes = {
@@ -3457,15 +3735,18 @@ button {
     return ''
   }
   function prepareCrisis(id) {
-    if (s.mode !== 'world' || s.crisisResult || s.crisisPrep.includes(id)) return;
-    const c = crisisPrepCost(id), cur = currentRaceCurrency(), thought = id !== 'reserve' ? c : 0,
-          race = id !== 'study' ? c : 0;
-    if (s.thoughts < thought || s.raceResources[cur] < race) return;
-    s.thoughts -= thought;
-    s.raceResources[cur] -= race;
+    if (!trialPreparationOpen() || s.crisisPrep.includes(id)) return false;
+    const action = crisisActions().find(item => item.id === id);
+    if (!action || !payTrialCost(action.cost)) return false;
+    const before = intelTier();
     s.crisisPrep.push(id);
+    const intelGain = intelTier() - before;
+    s.crisisPrepPaid = {...s.crisisPrepPaid, [id]: {...action.cost, intelGain}};
+    logEvent(`${action.name}：消耗 ${trialCostText(action.cost)}。${intelGain > 0 ?
+        `情报由「${trialIntelNames[before]}」提升为「${trialIntelNames[intelTier()]}」。` : ''}`);
     render();
-    save()
+    save();
+    return true;
   }
   const raceEvolutionDefs = {
     human: [
@@ -3474,7 +3755,7 @@ button {
         name: '想象力萌芽',
         desc: '通过假设与推演，即使未专门观察，也有机会分析已抵御的危机。'
       },
-      {id: 'creativity', name: '创造性开发', desc: '制作危机防护工具时节省一半资源。'},
+      {id: 'creativity', name: '创造性开发', desc: '购买防护预案时，载体资源费用减半。'},
       {id: 'memory', name: '记忆训练', desc: '成功抵御危机后，多保存一段尚未发现的灾难线索。'}
     ],
     animal: [
@@ -3499,7 +3780,7 @@ button {
       name: '灵机调息',
       desc: '危机中可借灵气循环维持生存，作为储备之外的应对方式。'
     },
-    technology: {id: 'technology-sensor', name: '环境监测', desc: '建立观察方法，危机观测筹备消耗减半。'}
+    technology: {id: 'technology-sensor', name: '环境监测', desc: '建立观察方法，归纳整理的念头费用减半。'}
   };
   function unlockWorldEvolution() {
     const def = worldEvolutionDefs[s.worldview], currency = worlds[s.worldview].currency;
@@ -3535,44 +3816,101 @@ button {
     render();
     save()
   }
-  function crisisPrepCost(id) {
-    if (id === 'study' && raceEvolutionUnlocked('technology-sensor')) return 6;
-    if (id === 'protect' && raceEvolutionUnlocked('creativity')) return 6;
-    if (id === 'reserve' && raceEvolutionUnlocked('carbon')) return 6;
-    return 12
+  function carrierTrialReadiness() {
+    const ids = {human: [0, 3, 2], animal: [1, 2, 0], plant: [0, 1, 2]}[s.species];
+    const stats = ids.map(i => (s.raceUpgrades[`race-${s.worldview}-${s.species}-${i}`] || 0) > 0);
+    return {
+      stats,
+      body: stats[0] || stats[1] || raceEffectTotals().prepare > 0 || raceEvolutionUnlocked('constitution'),
+      names: ids.slice(0, 2).map(i => survivalUpgradeNames[s.species][i])
+    }
+  }
+  function firstTrialPreparation() {
+    const route = currentFirstCarrierRoute();
+    const trained = !!route && s.trialPlan.carrierPractice?.species === s.species;
+    const matching = s.trialPlan.plans.filter(plan => plan.direction === trialWorldFocus[s.worldview]);
+    return {
+      node: s.totalNodes > 0 || s.mind > 0,
+      route, trained,
+      plan: matching.some(plan => !route ? trialPlanCompletion(plan) === 1 :
+          route.steps.every(step => trialPlanSteps(plan).includes(step)) && (s.species !== 'human' || plan.firstTool))
+    }
   }
   function crisisAssessment(option) {
-    const ids = {human: [0, 3, 2], animal: [1, 2, 0], plant: [0, 1, 2]}[s.species],
-          stats = ids.map(i => (s.raceUpgrades[`race-${s.worldview}-${s.species}-${i}`] || 0) > 0),
-          prep = s.crisisPrep, known = crisisClues(),
-          body =
-              stats[0] || stats[1] || raceEffectTotals().prepare > 0 || raceEvolutionUnlocked('constitution'),
-          mind = !!s.network || raceEvolutionUnlocked('horizon'),
+    const {stats, body, names} = carrierTrialReadiness();
+    const prep = s.crisisPrep, known = crisisClues(),
+          first = s.cycle === 1 && s.trialPlan.started ? firstTrialPreparation() : null,
+          basicRoute = !!(first?.node && first.plan && (first.route ? first.trained : body)),
+          mind = !!s.network || raceEvolutionUnlocked('horizon') || !!basicRoute,
           ready = prep.includes('reserve') || prep.includes('protect') || known > 0 ||
         (s.storyEvent?.bonus || 0) > 0 || raceEvolutionUnlocked('survival') ||
         raceEvolutionUnlocked('aquatic') || raceEvolutionUnlocked('cultivation-flow'),
-          guard = body &&
+          guard = (body || basicRoute) &&
         (prep.includes('protect') || raceEffectTotals().difficulty > 0 || raceEvolutionUnlocked('strength') ||
          (raceEvolutionUnlocked('magic-attune') && prep.includes('study'))),
-          study = (prep.includes('study') || raceEvolutionUnlocked('imagination')) && (stats[2] || mind),
-          survived = body && mind && ready, defended = survived && guard, analyzed = defended && study;
+          study = (prep.includes('study') || raceEvolutionUnlocked('imagination')) && (stats[2] || mind);
     const planStrength = trialPlanStrength(), planReady = planStrength >= 3,
           planGuard = planDirectionStrength('protect') >= 6, planStudy = planDirectionStrength('study') >= 10;
-    const level = (body && mind && (ready || planReady)) ?
-        ((guard || planGuard) ? ((study || planStudy) ? 3 : 2) : 1) :
-        0;
-    const advice = !body ? `在载体升级中先提升${survivalUpgradeNames[s.species][ids[0]]}或${
-                               survivalUpgradeNames[s.species][ids[1]]}。` :
+    const canSurvive = basicRoute || (body && mind && (ready || planReady));
+    const canGuard = guard || planGuard, canStudy = study || planStudy;
+    const distinct = coverage();
+    const level = !canSurvive ? 0 : distinct >= 2 && canGuard ? (canStudy ? 3 : 2) : 1;
+    let explanation = !body ? `载体尚未具备基础适应能力。提升${names.join('或')}可以改善这一点。` :
+        !mind ? '载体已有基础适应能力，但尚未形成足以组织应对的思维能力。' :
+        !(ready || planReady) ? '载体与思维已有基础，实际落实的准备尚不足以支撑这次应对。' :
+        planReady ? '已落实的方案提供了足够的准备，载体与思维也具备了应对基础。' :
+                    '载体和思维已有应对基础，本轮积累的其他准备或线索帮助载体撑了下来。';
+    let advice = !body ? `在「载体」提升${names.join('或')}。` :
         !mind                 ? '先继续积累念头，让思维网络形成。' :
         !(ready || planReady) ? '下次危机前落实更多储备或防护方案。' :
         !(guard || planGuard) ? '查看线索，下次尝试提升方案品质或落实更稳固的防护。' :
         !(study || planStudy) ? '查看线索，下次尝试更高品质的方案，或准备观测记录。' :
                                 '查看本轮记忆中的发现，并继续提升载体能力。';
+    if (basicRoute && first.route) {
+      explanation = `知识节点帮助你把征兆整理成方案。${first.route.outcome}`;
+      advice = '可以继续发展载体能力，尝试让准备覆盖更多方向。';
+    } else if (basicRoute) {
+      explanation = `载体已有基础适应能力。你形成了知识节点，也完整落实了贴合征兆的${trialDirectionNames[trialWorldFocus[s.worldview]]}方案。`;
+    } else if (first && level === 0 && (first.route || body)) {
+      if (!first.node) {
+        explanation = '还缺少能把征兆整理成应对思路的知识节点。';
+        advice = '可以先在「思维」解锁思维萌芽，并形成知识节点。'
+      } else if (first.route) {
+        explanation = first.trained ? '已有知识节点与专属准备，但贴合征兆的方案尚未完成本路线所需的步骤。' :
+            `已有知识节点，但尚未完成「${first.route.name}」。`;
+        advice = first.trained ? first.route.use : `可在「发展探索」完成「${first.route.name}」。`;
+      } else {
+        explanation = '你已经具备基础思维和载体能力，但贴合征兆的方案还没有完整落实。';
+        advice = '下次可以根据观测到的征兆选择方向，并落实同一方案的三项准备。'
+      }
+    }
+    if (canSurvive && canGuard && distinct < 2) {
+      advice = '本次适用的准备只覆盖一类方向。下次可再准备另一方向，提高抵御上限。';
+    }
+    const effects = {
+      study: level === 3 ? '记录参与解析成因。' : '记录已备好；完成抵御后才能用于解析。',
+      protect: level >= 2 ? '补足了防护并参与抵御。' :
+          level === 1 ? '已提供生存准备；抵御还需要覆盖至少两个方向。' : '已提供防护准备；载体或思维的基础仍不足。',
+      reserve: level > 0 ? '补足了生存准备。' : '储备已备好；载体或思维的基础仍不足。'
+    };
+    const preparations = crisisActions().filter(action => prep.includes(action.id));
+    const spending = preparations.map(action => {
+      const paid = s.crisisPrepPaid?.[action.id];
+      const payment = paid && typeof paid === 'object' ? `，消耗 ${trialCostText(paid)}` : '';
+      const intel = paid?.intelGain ? '购买时情报提高一档。' : '';
+      return `${action.name}${payment}。${intel}${effects[action.id]}`;
+    });
+    if (s.trialPlan.observationPaid) spending.unshift(`深入${detectorName()}，消耗 ${s.trialPlan.observationPaid} 知识。普通情报提高一档，最多到「了解」。`);
+    if (first?.trained) {
+      const payment = trialCostText(s.trialPlan.carrierPractice);
+      spending.unshift(`${first.route.name}，消耗 ${payment}。${basicRoute ? first.route.outcome :
+          `已完成专属准备。还需形成知识节点，并满足方案条件。${first.route.use}`}`);
+    }
     return {
-      level, advice, planStrength, planDirection: s.trialPlan?.direction || null,
+      level, advice, explanation, planStrength, planDirection: s.trialPlan?.direction || null,
           planCount: s.trialPlan?.plans?.filter(x => x.applied).length || 0,
-          plans: s.trialPlan?.plans?.map(x => ({...x})) || [],
-          preparations: prep.map(id => crisisActions().find(x => x.id === id)?.name).filter(Boolean), body,
+          plans: s.trialPlan.plans.map(plan => ({...plan, match: planMatch(plan.direction), strength: appliedPlanStrength(plan)})),
+          preparations: preparations.map(action => action.name), spending, body: body || basicRoute,
           mind, ready, known, choice: option.name
     }
   }
@@ -3794,6 +4132,7 @@ button {
                   (raceEvolutionUnlocked('agility') ? 2 : 0)),
           knowledgeBonus =
               1 + (s.species === 'human' ? Math.floor(stat(3) / 20) : 0) + Math.min(2, s.crossKnowledge || 0);
+    const keepCostText = s.trialPlan?.started ? '仅用于保全结算' : '';
     const options = [
       {
         id: 'resources',
@@ -3812,7 +4151,7 @@ button {
         bonus: knowledgeBonus,
         keep: 'knowledge',
         amount: knowledgeKeep,
-        desc: `消耗 5 ${raceResourceName(currency)}，准备 +${knowledgeBonus}；成功保存 ${
+        desc: `消耗 5 ${raceResourceName(currency)}，${keepCostText || `准备 +${knowledgeBonus}`}；成功保存 ${
             knowledgeKeep} 知识（受现有知识、教导者和轮回记忆影响），失败保存 1 知识。解锁族群后可领取。`
       },
       {
@@ -3822,7 +4161,7 @@ button {
         bonus: 1,
         keep: 'members',
         amount: membersKeep,
-        desc: `消耗 ${tribeCost} ${raceResourceName(currency)}，准备 +1；成功保存 ${
+        desc: `消耗 ${tribeCost} ${raceResourceName(currency)}，${keepCostText || '准备 +1'}；成功保存 ${
             membersKeep} 个延续印记，失败保存 1 个。解锁族群后可接纳。`
       }
     ];
@@ -4219,11 +4558,22 @@ button {
   function renderGoalHud() {
     const hud = $('goalHud');
     if (!hud) return;
-    const out = (title, value, detail, ratio) => {
+    const out = (title, value, detail, ratio, tab = '', step = '') => {
       hud.hidden = false;
-      $('goalTitle').textContent = title;
-      $('goalValue').textContent = value;
-      $('goalDetail').textContent = detail;
+      const status = $('goalDetail'), open = $('guideOpenModule'), toggle = $('guideToggle');
+      const key = step || title;
+      const shown = s.guideHints !== false && s.dismissedGuide !== key;
+      if ($('goalTitle').textContent !== title) $('goalTitle').textContent = title;
+      if ($('goalValue').textContent !== value) $('goalValue').textContent = value;
+      if (status.textContent !== detail) status.textContent = detail;
+      status.hidden = !shown;
+      open.hidden = !shown || !tab;
+      open.dataset.tab = tab;
+      open.textContent = tab ? `查看${{thought: '思维', species: '载体', explore: '发展探索', trial: '灾变应对'}[tab]}` : '';
+      toggle.hidden = s.guideHints === false;
+      toggle.dataset.step = key;
+      toggle.textContent = shown ? '收起提示' : '查看提示';
+      toggle.setAttribute('aria-expanded', String(shown));
       $('goalMeter').style.width = `${Math.max(0, Math.min(100, ratio * 100))}%`
     };
     if (s.mode === 'summary') {
@@ -4231,7 +4581,7 @@ button {
       return
     }
     if (s.mode === 'void') {
-      out('触碰空无', '0 / 1', '点击黑屏，唤起第一缕扰动。', 0);
+      out('触碰空无', '0 / 1', '触碰场景或按空格，可以唤起第一缕扰动。', 0);
       return
     }
     if (s.mode === 'empty-button') {
@@ -4254,20 +4604,41 @@ button {
         out('灾后成长', '灾难已应对', '继续成长，或在灾变应对栏结束本轮。', 1);
       } else if (s.trialPlan.started) {
         const plans = s.trialPlan.plans;
-        const detail = !s.trialPlan.direction ? '前往灾变应对，选择一项征兆作为方案方向。' :
-          !plans.length ? `前往灾变应对起草方案，需要 ${planCost()} 念头。` :
-          plans.some(p => (p.steps || (p.applied ? [1, 2, 3] : [])).length < 3) ?
-            '在灾变应对栏逐项落实方案，也可继续起草其他方向。' :
+        const step = !s.trialPlan.direction ? '方向' : !plans.length ? '起草' :
+          plans.some(p => trialPlanCompletion(p) < 1) ? '落实' : '保全';
+        const first = s.cycle === 1 ? firstTrialPreparation() : null;
+        const routeReady = first?.route && first.node && first.trained && first.plan;
+        const detail = routeReady ? '本路线的基础幸存准备已齐。可以继续筹备，也可以迎接考验。' :
+          first?.route && !first.trained ? `可到「发展探索」完成「${first.route.name}」。` :
+          step === '方向' ? '先读观测到的征兆，再选择一个方案方向。' :
+          step === '起草' ? (trialShortfall({thought: planCost()}) || `现在可以起草方案，需要 ${planCost()} 念头。`) :
+          first?.route && !first.plan ? first.route.use :
+          first?.route && !first.node ? '还需一个知识节点。若已解锁思维萌芽，预留合成所需念头。' :
+          step === '落实' ? '在方案下逐项投入载体资源。已经落实的部分会参与应对。' :
+          first && !first.plan ? '方案已落实，但还缺少一份贴合征兆的完整方案。可查看可选准备，再决定何时迎接考验。' :
+          first && (!first.node || !carrierTrialReadiness().body) ? '方案已落实。形成知识节点并提升对应载体素质，可补齐基础幸存条件。' :
             '方案已落实，可继续准备或立即迎接考验。';
-        out('灾前准备', `剩余 ${trialClock()}`, detail, 1);
+        const tab = first?.route && !first.trained ? 'explore' : first?.route && first.plan && !first.node ? 'thought' : 'trial';
+        out('灾前准备', `剩余 ${trialClock()}`, detail, 1, tab, routeReady ? '基础准备完成' : step);
       } else {
         const pending = pendingTraits()[0];
         if (pending) {
           const cost = 100 * pending.threshold;
           out('完成阶段特性', `${pending.def.name} · ${pending.threshold}`,
-              `在载体栏选择数值提升，需要 ${cost} ${raceResourceName(currentRaceCurrency())}；选择前该项无法继续升级。`, 1);
+              `完成特性后可继续提升这项素质。需要 ${cost} ${raceResourceName(currentRaceCurrency())}。`, 1, 'species');
         } else {
-          out('发展载体，准备灾变', '考验待探测', '在载体栏升级素质，或前往灾变应对开始信息收集。开始后进入限时筹备。', 1);
+          const first = s.cycle === 1 ? firstTrialPreparation() : null;
+          const body = first ? carrierTrialReadiness() : null;
+          const tab = !s.lifeSprout ? 'explore' : first && !first.node ? 'thought' :
+              first?.route && !first.trained ? 'explore' : !first?.route && body && !body.body ? 'species' : 'trial';
+          const detail = {
+            explore: !s.lifeSprout ? '可在「发展探索」免费开启生命的萌芽，之后主动触碰也能获得载体资源。准备好后再开始信息收集。' :
+              first?.route ? `可在「发展探索」完成「${first.route.name}」，需要 ${trialCostText(first.route.cost)}。${trialShortfall(first.route.cost)}` : '',
+            thought: `开计时前，建议先在「思维」形成一个知识节点。本步需 ${trialCostText(firstKnowledgeCost())}。`,
+            species: body ? `可在「载体」先提升${body.names.join('或')}，再开始信息收集。` : '',
+            trial: '在「灾变应对」可免费开始信息收集，随后按征兆拟定方案。'
+          }[tab];
+          out('发展载体，准备灾变', '考验待探测', detail, 1, tab, !s.lifeSprout ? '生命的萌芽' : tab);
         }
       }
       return
@@ -4277,19 +4648,19 @@ button {
       return
     }
     if (!s.species && s.runThoughts < 100) {
-      out('发展思维', `${s.runThoughts} / 100`, '累计 100 念头后，开放思绪流动和思想萌发。', s.runThoughts / 100);
+      out('发展思维', `${s.runThoughts} / 100`, '可查看灵感。累计 100 念头后，开放思绪流动和思想萌发。', s.runThoughts / 100, 'thought');
       return
     }
     if (!s.species && s.runThoughts < 500) {
-      out('凝聚思维', `${s.runThoughts} / 500`, '累计 500 念头后，思维栏开放思维萌芽；解锁需要 1000 念头。', s.runThoughts / 500);
+      out('凝聚思维', `${s.runThoughts} / 500`, '累计 500 念头后可查看思维萌芽，解锁需要 1000 念头。', s.runThoughts / 500, 'thought');
       return
     }
     if (!s.species && s.runThoughts < 1000) {
-      out('积累念头', `${s.runThoughts} / 1000`, '累计 1000 念头可选择生命载体，也可花费 1000 念头解锁思维萌芽。', s.runThoughts / 1000);
+      out('积累念头', `${s.runThoughts} / 1000`, '累计 1000 念头可选择载体。手中的念头可用于升级，消耗不会减少已累计的数量。', s.runThoughts / 1000, 'thought');
       return
     }
     if (!s.species) {
-      out('选择生命载体', '已开放', '前往左侧发展探索，选择人类、动物或植物。', 1);
+      out('选择生命载体', '已开放', '可在「发展探索」选择人类、动物或植物。也可以留在这里继续积累。', 1, 'explore');
       return
     }
 
@@ -4297,6 +4668,7 @@ button {
   function renderStoryLog() {
     const target = $('storyLog');
     if (!target) return;
+    const openRecaps = new Set([...target.querySelectorAll('[data-cycle-recap][open]')].map(item => item.dataset.cycleRecap));
     target.innerHTML = '';
     for (const [key, count] of Object.entries(s.crisisIntel || {})) {
       const [world, branch] = key.split(':'), base = crises[world];
@@ -4322,6 +4694,39 @@ button {
     for (const h of [...(s.cycleHistory || [])].reverse()) {
       const card = document.createElement('div');
       card.className = 'story-log-entry';
+      if (h.recap) {
+        const title = document.createElement('small'), recap = document.createElement('div');
+        const details = document.createElement('details'), label = document.createElement('summary');
+        title.textContent = `第 ${String(h.cycle).padStart(2, '0')} 轮回 · ${h.species} · ${h.world}`;
+        recap.textContent = h.recap.map(([, value]) => value).join(' ');
+        details.dataset.cycleRecap = String(h.cycle);
+        details.open = openRecaps.has(details.dataset.cycleRecap);
+        label.textContent = '查看经历与准备';
+        details.append(label);
+        const notes = [
+          h.focusValue ? `主要培养了${h.focus}（${raceStatLabel(h.focusValue)}）。` : '',
+          `本轮累计 ${h.thoughts} 念头，形成 ${h.nodes} 个知识节点。`,
+          ...(h.eventEntries || []).map(event => event.text),
+          ...(h.lifeMoments || []).map(moment => moment.text),
+          ...(h.crisis?.spending || []),
+          ...(h.crisis?.plans || []).map(p => {
+            const steps = Object.values(p.stepCosts || {}), paid = steps.reduce((total, amount) => total + amount, 0);
+            const currency = worlds[h.crisis.key?.split(':')[0]]?.resources[0][1] || '载体资源';
+            return `${trialDirectionNames[p.direction] || '筹备'}方案 · 等级 ${p.quality} · 已落实 ${Math.round(trialPlanCompletion(p) * 3)} / 3 项${p.firstTool ? ' · 第三项已使用应变工具' : ''}${
+              p.cost ? ` · 起草 ${p.cost} 念头` : ''}${paid ? ` · 已记录落实 ${paid} ${currency}` : ''}${
+              Number.isFinite(p.strength) ? ` · 匹配系数 ${p.match} · 有效力度 ${formatTrialStrength(p.strength)}` : ''}`;
+          }),
+          ...(h.crisis?.newClues?.slice(1) || [])
+        ];
+        for (const note of notes.filter(Boolean)) {
+          const line = document.createElement('p');
+          line.textContent = note;
+          details.append(line)
+        }
+        card.append(title, recap, details);
+        target.append(card);
+        continue
+      }
       card.textContent = `第 ${h.cycle} 轮：选择${h.species}（${h.world}） → 培养${h.focus}至 ${
           raceStatLabel(h.focusValue)} → ${
           h.eventEntries?.length ? h.eventEntries.map(x => x.text).join(' → ') + ' → ' :
@@ -4715,8 +5120,8 @@ button {
       s.rateLv--;
       return `念头间隔 ${before} → ${after} 毫秒`
     }
-    if (id === 'growth') return `单次成长 ${growthYield()} → ${growthYield() + 1}`;
-    if (id === 'network') return `点击念头 ${clickThoughtYield()} → ${clickThoughtYield() + 1} / 次`;
+    if (id === 'growth') return `单次成长 ${growthYield()} → ${growthYield() + 5}`;
+    if (id === 'network') return `点击念头 ${clickThoughtYield()} → ${clickThoughtYield() + 5} / 次`;
     if (id === 'spirit-language')
       return `载体资源加成 ${(s.spiritLanguageLv / 10).toFixed(1)}% → ${
           ((s.spiritLanguageLv + 1) / 10).toFixed(1)}%`;
@@ -4734,7 +5139,7 @@ button {
     return true
   }
   function clickThoughtYield() {
-    return thoughtYield() + 5 * s.networkLv;
+    return whole(1 + raceThoughtBonus() + 5 * s.networkLv);
   }
   function activeThought(e) {
     const now = performance.now();
@@ -5173,16 +5578,29 @@ button {
       });
   }
   // 升级面板入口。只构建玩家当前打开的分类。
+  function openUpgradeTab(tab) {
+    s.upgradeTab = tab;
+    renderUpgrades();
+    $('upgradeTabs').querySelector(`[data-tab="${tab}"]`)?.focus({preventScroll: true});
+    $('upgradePanel').scrollTop = 0;
+    $('upgradePanel').scrollIntoView({block: 'nearest'});
+    save();
+  }
+  let renderedUpgradeTabs = '';
   function renderUpgrades() {
     const panel = $('upgradePanel'), tabs = $('upgradeTabs'), list = $('upgradeList'),
           footer = $('upgradeFooter');
     const active = ['growth', 'species', 'world', 'summary'].includes(s.mode);
     panel.hidden = !active;
     world.classList.toggle('has-upgrades', active);
-    tabs.innerHTML = '';
+    const focusedTrialControl = document.activeElement?.dataset?.trialControl;
     list.innerHTML = '';
     footer.innerHTML = '';
-    if (!active) return;
+    if (!active) {
+      tabs.innerHTML = '';
+      renderedUpgradeTabs = '';
+      return
+    }
     if (s.mode === 'summary')
       s.upgradeTab = 'legacy';
     else if (['special', 'society'].includes(s.upgradeTab))
@@ -5196,17 +5614,21 @@ button {
       {id: 'legacy', label: '回响恒铸', locked: s.mode !== 'summary'}
     ];
     if (!categories.some(c => c.id === s.upgradeTab && !c.locked)) s.upgradeTab = 'thought';
-    tabs.innerHTML =
-        categories.filter(c => !c.locked)
-            .map(
-                c => `<button class="upgrade-tab ${s.upgradeTab === c.id ? 'active' : ''}" data-tab="${
-                    c.id}" type="button" ${c.locked ? 'disabled' : ''}>${c.label}</button>`)
-            .join('');
-    tabs.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => {
-      if (b.disabled) return;
-      s.upgradeTab = b.dataset.tab;
-      renderUpgrades();
-      save()
+    const openTabs = categories.filter(c => !c.locked);
+    const tabIds = openTabs.map(c => c.id).join(' ');
+    if (tabIds !== renderedUpgradeTabs) {
+      tabs.innerHTML = openTabs.map(c => `<button class="upgrade-tab" data-tab="${c.id}" type="button">${c.label}</button>`).join('');
+      tabs.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => {
+        s.upgradeTab = b.dataset.tab;
+        renderUpgrades();
+        save()
+      });
+      renderedUpgradeTabs = tabIds
+    }
+    tabs.querySelectorAll('[data-tab]').forEach(b => {
+      const selected = s.upgradeTab === b.dataset.tab;
+      b.classList.toggle('active', selected);
+      b.setAttribute('aria-pressed', String(selected));
     });
     const addCards = (rows, race = false) => {
       const cards = document.createElement('div');
@@ -5234,6 +5656,15 @@ button {
           .forEach(b => b.onclick = () => openEncyclopedia(b.dataset.encyclopedia))
     };
     if (s.upgradeTab === 'legacy' || s.upgradeTab === 'explore') {
+      const route = s.mode === 'world' && !s.crisisResult ? currentFirstCarrierRoute() : null;
+      if (route) {
+        upgradeHeading(list, '首轮专属准备');
+        const done = firstTrialPreparation().trained;
+        uiCard(list, `first-carrier-${s.species}`, route.name, route.intro,
+            `${route.use} ${done ? `已投入 ${trialCostText(s.trialPlan.carrierPractice)}。` : trialShortfall(route.cost)}`,
+            done ? '已完成' : `准备 · ${trialCostText(route.cost)}`,
+            !done && !trialExpired() && !trialShortfall(route.cost), learnFirstCarrierRoute);
+      }
       renderSpecialSection(list, item => s.mode === 'summary' || [
         'species', 'story-event', 'life-sprout', 'race-stage', 'branch'
       ].includes(item.type));
@@ -5388,17 +5819,21 @@ button {
     polishUpgradeCards(list);
     if (s.mode === 'world' && s.species && s.upgradeTab === 'trial') {
       const collapseBtn = document.createElement('button');
+      collapseBtn.dataset.trialControl = 'resolve';
       collapseBtn.textContent = s.crisisResult ? '结束本轮' :
           s.trialPlan.started                  ? '立即迎接考验' :
                                                  '请先开始探测';
       collapseBtn.disabled = !s.crisisResult && !s.trialPlan.started;
       collapseBtn.onclick = s.crisisResult ? finishSurvivedCycle : resolveTimedTrial;
-      footer.append(collapseBtn)
+      footer.append(collapseBtn);
+      if (focusedTrialControl) {
+        panel.querySelector(`[data-trial-control="${focusedTrialControl}"]:not(:disabled)`)?.focus({preventScroll: true})
+      }
     }
     if (s.mode === 'summary') {
       const next = document.createElement('button');
       next.textContent = '进入下一轮';
-      next.onclick = nextCycle;
+      next.onclick = requestNextCycle;
       footer.append(next)
     }
   }
@@ -5742,74 +6177,66 @@ button {
         h.keepLabel ? `留下 ${h.kept || 0} ${h.keepLabel}` : '仍有回响留存'}。`
   }
   function stageNarrative() {
-    if (s.mode === 'trial')
-      return ['应对选择', trialScene(), '确认选择后，危机将真正来临；也可以返回继续准备。'];
-    if (s.mode === 'aftermath' && s.crisisResult)
-      return [
-        '灾难结果', `${s.crisisResult.crisisName}已经过去。载体仍在，你可以继续成长。`,
-        '这次经历留下的线索，已经记入本轮记忆。'
-      ];
-    if (s.mode === 'world' && s.species && s.crisisResult)
-      return [
-        '灾后成长', ({
-          human: '你还活着。危机之后，留下的经验仍可继续整理。',
-          animal: '危险过去了。你仍能感知周围，继续寻找生存的机会。',
-          plant: '危机过去了。仍然存活的部分继续感受周围的变化。'
-        })[s.species],
-        '这次结果已经记录；你可以继续成长。'
-      ];
-    if (s.mode === 'world' && s.species && s.trialPlan.started)
-      return [
-        '灾前准备', `${s.lifeMoments.at(-1)?.text || survivalStories[s.species]} 周围出现了尚不清晰的变化。`,
-        '倒计时已经开始；判断征兆并筹备方案。'
-      ];
-    if (s.mode === 'world' && s.species && s.crisisPrep.length) {
-      const prepared = s.crisisPrep.map(id => crisisActions().find(a => a.id === id)?.name).filter(Boolean);
-      return [
-        '灾前准备',
-        `${s.lifeMoments.at(-1)?.text || survivalStories[s.species]} ${crisisInfo().warning} 你已着手${
-            prepared.join('、')}。`,
-        '危险尚未到来；可以继续准备，也可以主动应对。'
-      ];
+    if (s.mode === 'void')
+      return ['空无', s.cycle === 1 ? '有一缕意识醒了。它能思索，却还触不到世界。' :
+                                    '空无再次展开。上一轮留下的回响仍在。', ''];
+    if (s.mode === 'empty-button') return ['扰动', '空无有了第一点变化。', ''];
+    if (s.mode === 'glyph') return ['符号', '几次扰动之后，变化有了形状。它似乎在等一个回应。', ''];
+    if (s.mode === 'species')
+      return ['生命载体', '念头渐渐连成了思绪。也许有一种生命，能让你触到思绪之外的世界。', ''];
+    if (s.mode === 'growth')
+      return ['初次理解', lang.first, '念头会自行积累。每次触碰，也能带来新的念头。'];
+    if (s.mode === 'trial') return ['应对选择', trialScene(), ''];
+    if (s.crisisResult)
+      return ['灾后成长', '这一次，载体在变化中留了下来。你还可以继续整理这段经历。', '发现已记入本轮记忆。'];
+    if (s.trialPlan.started) {
+      if (!s.trialPlan.direction)
+        return ['察觉征兆', '感知到的变化还不完整。你可以先从其中一处迹象想下去。', ''];
+      if (!s.trialPlan.plans.length)
+        return ['构想应对', '你选定了一个方向。零散的念头，可以先整理成一份方案。', ''];
+      if (s.trialPlan.plans.some(p => trialPlanCompletion(p) < 1))
+        return ['落实准备', '办法已经想出来了。载体正在把它一点点变成现实。', ''];
+      return ['灾变将至', '有些准备已经做完。你可以再做些什么，也可以带着它们迎接变化。', ''];
     }
-    if (s.mode === 'world' && s.species)
-      return [
-        '灾难预兆', `${s.lifeMoments.at(-1)?.text || survivalStories[s.species]} 冥冥中有一场考验正在来临。`,
-        '你可以在灾变应对栏开始探测与准备。'
-      ];
-    if (s.mode === 'species' && !s.species)
-      return ['生命载体', '念头开始彼此连接，但还没有身体。', '选择一种生命，让意识第一次拥有承载之物。'];
-    if (!s.species)
-      return [
-        s.runThoughts > 0 ? '初次理解' : '思维萌芽',
-        s.runThoughts > 0 ? lang.first :
-            s.cycle > 1   ? '空无再次展开。上一次留下的回响仍在。' :
-                            '扰动没有停下。重复开始有了方向。',
-        '每一个念头，都在为下一次变化积累条件。'
-      ];
-    const level = raceUpgradeLevels();
-    if (s.cycle === 1 && level === 0)
-      return [
-        '世界观显现',
-        `思维进入了${species[s.species].name}。${
-            worlds[s.worldview].name}世界展开在感知之外；载体开始以自身经验验证思维。`,
-        '载体会改变，也会改变你所能理解的世界。先活下来，才能继续探索。'
-      ];
-    if (s.cycle === 1 && level < 3)
-      return ['个体生存', survivalStories[s.species], '感知、获取资源、适应环境。让身体能够承受更多。'];
-    if (s.cycle === 1)
-      return [
-        '思维与载体', `身体开始适应${worlds[s.worldview].name}世界。每一次成长，都让意识多留下一点时间。`,
-        '思维网络仍在扩张；载体沿自己的方式改变。'
-      ];
+    const carrierSense = {
+      human: '你第一次感到指尖的重量。手心里的石头，原来是凉的。',
+      animal: '风里有陌生的气味。你还没有想明白，身体已经先停了下来。',
+      plant: '根须触到湿润的泥土。你迈不出这一步，却能感到水分在身边移动。'
+    }[s.species];
+    return ['借生命感知世界', s.lifeMoments.at(-1)?.text || carrierSense,
+      '远处有了一些变化。载体仍然脆弱，经历过的事却有可能在下一轮留下痕迹。'];
+  }
+  function cycleRecap(result, reward) {
+    const crisis = result?.crisis;
+    const outcome = crisis ? ['未能存活', '渡过考验', '成功抵御', '抵御并解析'][crisis.level] :
+        result?.cleared ? '保全了记忆' : '这段生命走到了尽头';
     return [
-      '回响与新生',
-      `第 ${s.cycle} 轮回。${
-          s.cycleHistory?.length ?
-              `上一次，你选择${s.cycleHistory.at(-1).species}，将${s.cycleHistory.at(-1).focus}留作记忆。` :
-              '旧日的回响留在意识深处。'}新的载体已进入${worlds[s.worldview].name}世界。`,
-      '旧有选择留下的记忆，可以在新的考验中发挥作用。'
+      ['灾变结果', crisis?.crisisName ? `${crisis.crisisName} · ${outcome}` : outcome],
+      ['原因', crisis?.explanation || crisis?.advice || '本轮经历已存入记忆。'],
+      ...(crisis?.spending ? [['应对投入', `${crisis.plans.length} 份方案，有效力度合计 ${formatTrialStrength(crisis.planStrength)}。具体费用及筹备效果可在「本轮记忆」查看。`]] : []),
+      ['留下的事物', [
+        crisis?.newClues?.[0],
+        result?.kept > 0 ? `沿着「${result.choiceName}」留下 ${result.kept} ${result.keepLabel}。` : '',
+        s.storyEvent?.pendingKnowledge ? `载体经历另留下 ${s.storyEvent.pendingKnowledge} 知识。` : '',
+        s.storyEvent?.pendingMembers ? `载体经历另留下 ${s.storyEvent.pendingMembers} 延续印记。` : ''
+      ].filter(Boolean).join(' ') || '这次经历仍会留在本轮记忆中。'],
+      ['本轮回响', `获得 ${reward} 点回响。`]
     ];
+  }
+  function formatTrialStrength(value) {
+    return String(Number(value.toFixed(2)));
+  }
+  function renderCycleSummary() {
+    const panel = $('cycleSummary');
+    panel.replaceChildren();
+    const rows = s.cycleHistory.at(-1)?.recap || cycleRecap(s.trialResult, s.lastReward ?? 0);
+    for (const [name, value] of rows) {
+      const row = document.createElement('div'), label = document.createElement('dt'), item = document.createElement('dd');
+      label.textContent = name;
+      item.textContent = value;
+      row.append(label, item);
+      panel.append(row)
+    }
   }
   function render() {
     capResourceStocks();
@@ -5821,16 +6248,31 @@ button {
     renderGoalHud();
     renderResources();
     renderUpgrades();
+    const summary = s.mode === 'summary';
+    $('cycleSummary').hidden = !summary;
+    $('sceneCopy').hidden = false;
+    if (summary) {
+      $('caption').textContent = `轮回结算 · ${ranks[s.lastRank || 0]}`;
+      $('story').textContent = s.trialResult?.cleared ?
+          '你渡过了这场考验。后来，这段生命走到了尽头，经历凝成了回响。' :
+          '载体未能撑过这次变化。世界正逐渐远去，仍有一些经历留了下来。';
+      $('hint').textContent = '可到「本轮记忆」回看记录。准备好后，选择「进入下一轮」。';
+      renderCycleSummary()
+    } else {
+      const [caption, story, hint] = stageNarrative();
+      $('caption').textContent = caption;
+      $('story').textContent = story;
+      $('hint').textContent = hint;
+    }
     if (s.mode === 'void') {
       world.classList.remove('awake', 'has-action');
       $('emptyPrompt').hidden = false;
-      $('sceneCopy').hidden = true;
       action.hidden = true;
       $('choices').hidden = true
     } else {
       world.classList.add('awake', 'has-action');
       $('emptyPrompt').hidden = true;
-      action.hidden = ['growth', 'species', 'world', 'trial', 'aftermath', 'summary'].includes(s.mode);
+      action.hidden = !['empty-button', 'glyph'].includes(s.mode);
       if (s.mode === 'empty-button') {
         action.className = 'main-action blank';
         action.textContent = ''
@@ -5838,70 +6280,6 @@ button {
       if (s.mode === 'glyph') {
         action.className = 'main-action glyph';
         action.textContent = '⌁ ⋇ ⊙'
-      }
-      if (s.mode === 'words') {
-        s.mode = 'growth';
-        action.hidden = true
-      }
-      if (['empty-button', 'glyph'].includes(s.mode)) {
-        $('sceneCopy').hidden = true
-      } else {
-        $('sceneCopy').hidden = false
-      }
-      if (['growth', 'species', 'world', 'trial', 'aftermath'].includes(s.mode)) {
-        const beat = stageNarrative();
-        $('caption').textContent = beat[0];
-        $('story').textContent = beat[1];
-        $('hint').textContent = s.mode === 'species' ?
-            '念头已达到 1000。选择一个生命载体；本轮选择固定。' :
-            s.mode === 'world' && s.species ?
-            (s.crisisResult           ? '危机已应对，你可以继续成长。' :
-                 !s.trialPlan.started ? '冥冥中有一场考验正在来临；可在灾变应对栏开始探测。' :
-                 s.crisisPrep.length  ? `已准备：${
-                                            s.crisisPrep
-                                                .map(id => crisisActions().find(a => a.id === id)?.name)
-                                                .filter(Boolean)
-                                                .join('、')}。可继续准备。` :
-                                        `探测发现了一些含糊的征兆，可在灾变应对栏筹备方案。`) :
-            s.mode === 'trial' ? '决定如何应对；也可以返回继续筹备。' :
-                                 `${beat[2]} · 本轮念头 ${whole(s.runThoughts)} / 1000`
-      }
-      if (s.mode === 'summary') {
-        $('sceneCopy').hidden = false;
-        $('caption').textContent = `轮回结算 · ${ranks[s.lastRank || 0]}`;
-        $('story').textContent = s.lastTrial || '个体消逝。思维留下回响。';
-        $('hint').textContent = s.crisisResult ?
-            `${
-                s.crisisResult.preparations?.length ? '曾经' + s.crisisResult.preparations.join('、') + '。' :
-                    s.crisisResult.planCount        ? '' :
-                                                      '没有落实防灾方案。'}${s.crisisResult.lifeLine || ''}${
-                s.crisisResult.planCount ?
-                    `落实 ${s.crisisResult.planCount} 份方案（${
-                        (s.crisisResult.plans || [])
-                            .filter(p => p.applied)
-                            .map(p => `${trialRouteName(p.direction, p.route)}·品质${p.quality}`)
-                            .join('、')}）；${
-                        s.crisisResult.planDirection === trialWorldFocus[s.worldview] ?
-                            '判断与危机更贴近' :
-                            '判断未完全贴近危机'}。` :
-                    ''}${(s.crisisResult.newClues || []).join(' ')} 建议：${
-                s.crisisResult.advice || '回顾本轮经历。'} 选择：${s.trialResult?.choiceName || ''}；留下 ${
-                s.trialResult?.kept ||
-                0} ${s.trialResult?.keepLabel || ''}；获得 ${s.lastReward || 1} 回响。` :
-            `本轮形成 ${whole(s.runThoughts)} 个念头，载体升级 ${raceUpgradeLevels()} 次；考验${
-                s.trialResult?.cleared ? '保全记忆' : '只留下残片'}；获得 ${s.lastReward || 1} 点回响；${
-                s.trialResult?.choiceName || '本轮'}保留 ${s.trialResult?.kept || 0} ${
-                s.trialResult?.keepLabel || ''}。 评价 ${s.trialResult?.evaluation?.total ?? '—'} / 10：${
-                s.trialResult?.evaluation?.dimensions?.map(x => `${x.name} ${x.points}/2（${x.reason}）`)
-                    .join('；') ||
-                '旧版结算'}。 ${
-                s.trialResult?.contributions
-                    ?.map(x => `${x.name} ${raceStatLabel(x.value)}（准备 +${x.bonus}）`)
-                    .join('；') ||
-                ''}。准备 ${s.trialResult?.score || 0} / 难度 ${s.trialResult?.difficulty || 0}；消耗 ${
-                s.trialResult?.spent ||
-                0} ${s.trialResult?.currency || ''}，剩余 ${s.trialResult?.resourceLeft || 0}。`;
-        action.hidden = true
       }
       const ch = $('choices');
       if (s.mode === 'trial') {
@@ -6105,12 +6483,26 @@ button {
     s.trialResult.evaluation = cycleEvaluation();
     s.lastRank = s.trialResult.evaluation.rank;
     s.lastReward = s.lastRank + 1;
-    s.cycleHistory[s.cycleHistory.length - 1].reward = s.lastReward;
+    const history = s.cycleHistory.at(-1);
+    history.reward = s.lastReward;
+    history.recap = cycleRecap(s.trialResult, s.lastReward);
+    history.thoughts = s.runThoughts;
+    history.nodes = s.totalNodes;
     s.echo += s.lastReward;
     logEvent(`本轮结算为“${ranks[s.lastRank]}”，获得 ${s.lastReward} 点回响。`);
     render();
     save();
     toast(`本轮评价：${ranks[s.lastRank]} · 获得 ${s.lastReward} 点回响。`)
+  }
+  function requestNextCycle() {
+    if (s.mode !== 'summary') return;
+    if (s.cycle === 1) {
+      const dialog = $('guidePreference');
+      dialog.returnValue = '';
+      dialog.showModal();
+      return
+    }
+    nextCycle()
   }
   function nextCycle() {
     s.summaryResources = null;
@@ -6129,6 +6521,7 @@ button {
     clickStreak = 0;
     lastActiveClick = 0;
     s.newCycleWelcome = true;
+    s.dismissedGuide = '';
     s.mode = 'void';
     s.disturbances = 0;
     s.glyphClicks = 0;
@@ -6500,55 +6893,22 @@ button {
   function intelTier() {
     if (s.stageUnlocks.infoArchive && crisisClues() >= 3) return 4;
     const power = raceUpgradeLevels() + 10 * mindPlanRank();
-    return Math.max(0, Math.min(3, Math.floor(power / 20)))
+    const fieldwork = Number(!!s.trialPlan.observationPaid) + Number(s.crisisPrep.includes('study'));
+    return Math.max(0, Math.min(3, Math.floor(power / 20) + fieldwork))
   }
 
   function planQualityCap() {
     return Math.min([1, 2, 2, 5, 10][intelTier()], 5 + (s.legacyBoosts.planSlots || 0))
   }
 
-  draftTrialPlan = () => {
-    const t = s.trialPlan;
-    if (!t.started || trialExpired() || !t.direction || t.plans.length >= planLimit() ||
-        s.thoughts < planCost())
-      return;
-    const c = planCost(),
-          q = Math.max(
-              1, Math.min(planQualityCap(), 1 + mindPlanRank() + Math.floor(raceUpgradeLevels() / 30)));
-    s.thoughts -= c;
-    t.plans.push({
-      direction: t.direction,
-      directionLabel: trialHint(t.direction).label,
-      quality: q,
-      cost: c,
-      steps: [],
-      route: 0,
-      applied: false
-    });
-    render();
-    save()
-  };
-
-
   function planDirectionStrength(id) {
     return s.trialPlan.plans.filter(p => p.direction === id)
-        .reduce(
-            (n, p) => n +
-                p.quality * (p.completion ?? (p.applied ? 1 : 0)) *
-                    (id === trialWorldFocus[s.worldview] ? 1 : .5),
-            0)
+        .reduce((n, plan) => n + appliedPlanStrength(plan), 0);
   }
   function coverage() {
-    return new Set(
-               s.trialPlan.plans.filter(p => (p.completion ?? (p.applied ? 1 : 0)) > 0).map(p => p.direction))
-        .size
+    return new Set([...s.crisisPrep.filter(id => Object.hasOwn(trialDirections, id)),
+      ...s.trialPlan.plans.filter(p => trialPlanCompletion(p) > 0).map(p => p.direction)]).size;
   }
-  const oldAssess = crisisAssessment;
-  crisisAssessment = o => {
-    const r = oldAssess(o);
-    if (coverage() < 2 && r.level > 1) r.level = 1;
-    return r
-  };
   function revealUpgrade(id, ready) {
     s.discoveredUpgrades = s.discoveredUpgrades || {};
     if (ready) s.discoveredUpgrades[id] = true;
@@ -6633,7 +6993,8 @@ button {
         cardMeta(id) ? `<p class="upgrade-level">${cardMeta(id)}</p>` :
                        ''}<p class="upgrade-preview">${preview}</p>${
         cost && !button.includes(' · ') ? `<p class="upgrade-cost">需要：${cost}</p>` :
-               ''}</div><button type="button" data-action ${enabled ? '' : 'disabled'}>${
+               ''}</div><button type="button" data-action ${/^(detect(?:-deep)?$|prep-|direction-|draft$|keep-)/.test(id) ?
+               `data-trial-control="${id}"` : ''} ${enabled ? '' : 'disabled'}>${
         button}</button>`;
     panelEncyclopedia.set('v16-' + id, {
       id: 'v16-' + id,
@@ -6853,10 +7214,6 @@ button {
     const base = d?.kind === 'stat' ? 200 + 100 * l * (1 + s.raceStage) * (1 + l / 100) : priorRaceCost(id);
     return Math.max(1, Math.ceil(base * (1 - .05 * s.legacyBoosts.structure)))
   };
-  crisisPrepCost = id => {
-    const l = Math.max(0, ...s.trialPlan.plans.map(p => p.quality));
-    return id === 'study' ? 500 + 200 * l : id === 'protect' ? 500 + 100 * l : 500 + 300 * l
-  };
 
 
 
@@ -6881,6 +7238,7 @@ button {
   const appearanceForm = appearanceDialog.querySelector('form');
   const appearanceOptions = appearanceForm.elements.appearance;
   const fullHighlightInput = $('highlightFullResources');
+  const guideInput = $('showGuideHints'), guidePreference = $('guidePreference');
   fullHighlightInput.checked = highlightFullResources;
   const root = document.documentElement;
   appearanceOptions.value = root.dataset.appearance;
@@ -6888,8 +7246,18 @@ button {
     appearanceOptions.value = 'dark';
     root.dataset.appearance = 'dark';
   }
-  $('openAppearance').addEventListener('click', () => appearanceDialog.showModal());
+  $('openAppearance').addEventListener('click', () => {
+    guideInput.checked = s.guideHints !== false;
+    appearanceDialog.showModal()
+  });
   appearanceForm.addEventListener('change', event => {
+    if (event.target === guideInput) {
+      s.guideHints = guideInput.checked;
+      s.dismissedGuide = '';
+      renderGoalHud();
+      save();
+      return
+    }
     if (event.target === fullHighlightInput) {
       highlightFullResources = fullHighlightInput.checked;
       try { localStorage.setItem(FULL_HIGHLIGHT_KEY, String(highlightFullResources)); } catch {}
@@ -6903,6 +7271,22 @@ button {
     } catch {
       // 当前页面仍可切换外观。
     }
+  });
+  $('guideToggle').addEventListener('click', event => {
+    const step = event.currentTarget.dataset.step;
+    s.dismissedGuide = s.dismissedGuide === step ? '' : step;
+    renderGoalHud();
+    save()
+  });
+  $('guideOpenModule').addEventListener('click', event => {
+    const tab = event.currentTarget.dataset.tab;
+    if (tab) openUpgradeTab(tab);
+  });
+  guidePreference.addEventListener('close', () => {
+    const choice = guidePreference.returnValue;
+    if (s.mode !== 'summary' || s.cycle !== 1 || !['show', 'hide'].includes(choice)) return;
+    s.guideHints = choice === 'show';
+    nextCycle()
   });
   document.querySelectorAll('[data-sidebar-tab]').forEach(button => {
     button.addEventListener('click', () => {
@@ -6929,7 +7313,7 @@ button {
   $('emptyPrompt').addEventListener('click', wake);
   action.addEventListener('click', pressMain);
   world.addEventListener('click', e => {
-    if (e.target.closest('#mainAction,#emptyPrompt,#upgradePanel,#worldviewData,#choices,.topline,.cycle-notice')) return;
+    if (e.target.closest('#mainAction,#emptyPrompt,#upgradePanel,#worldviewData,#choices,.topline,.cycle-notice,#goalHud')) return;
     if (['empty-button', 'glyph'].includes(s.mode)) {
       disturb(false, e);
       return
@@ -6950,7 +7334,7 @@ button {
   document.querySelectorAll('[data-close-encyclopedia]')
       .forEach(b => b.addEventListener('click', closeEncyclopedia));
   window.addEventListener('keydown', e => {
-    if (appearanceDialog.open || $('cycleDialog').open) return;
+    if (appearanceDialog.open || $('cycleDialog').open || guidePreference.open) return;
     if (!$('offlineReport').hidden) {
       if (e.key === 'Escape') $('offlineReport').hidden = true;
       return

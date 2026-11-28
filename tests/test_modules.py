@@ -2,7 +2,7 @@ from pathlib import Path
 import subprocess, tempfile, shutil
 html=(Path(__file__).resolve().parents[1]/'index.html').read_text()
 source=html.split('<script>')[1].split('</script>')[0]
-prefix='''var navigator={language:'zh'};function element(){return {hidden:false,textContent:'',innerHTML:'',children:[],classList:{toggle:function(){}},append:function(){this.children.push.apply(this.children,arguments)},querySelector:function(){return element()},querySelectorAll:function(){return []}}}var nodes={};var document={documentElement:{},getElementById:function(id){return nodes[id]||(nodes[id]=element())},createElement:element};var localStorage={getItem:function(){return null},setItem:function(){}};var performance={now:function(){return 0}};
+prefix='''var navigator={language:'zh'};function element(){return {hidden:false,textContent:'',innerHTML:'',children:[],dataset:{},classList:{toggle:function(){}},append:function(){this.children.push.apply(this.children,arguments)},querySelector:function(){return element()},querySelectorAll:function(){return []}}}var nodes={};var document={documentElement:{},getElementById:function(id){return nodes[id]||(nodes[id]=element())},createElement:element};var localStorage={getItem:function(){return null},setItem:function(){}};var performance={now:function(){return 0}};
 '''
 test='''render=()=>{};toast=()=>{};save=()=>{};polishUpgradeCards=()=>{};
 function check(v,m){if(!v)throw Error(m)}function content(e){return e.textContent+e.innerHTML+e.children.map(content).join('')}
